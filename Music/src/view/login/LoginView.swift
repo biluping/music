@@ -24,11 +24,6 @@ struct LoginView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                
-                Text(msg)
-                    .foregroundColor(.red)
-                    .frame(width: 100, height: 30)
-                    .font(.callout)
 
                 Group {
                     // 用户名输入框
@@ -53,31 +48,7 @@ struct LoginView: View {
                 .cornerRadius(10)
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
 
-                // 登录按钮
-                Button(action: login) {
-                    if isLoading {
-                        ProgressView()
-                            .progressViewStyle(
-                                CircularProgressViewStyle(tint: .white))
-                    } else {
-                        Text("登录")
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color.blue, Color.purple,
-                                    ]), startPoint: .leading, endPoint: .trailing)
-                            )
-                            .cornerRadius(10)
-                    }
-                    
-                }
-                .disabled(isLoading)
-                .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 5)
-                .buttonStyle(BorderlessButtonStyle()) // 添加这一行来移除边框
+                LoginButton(isLoading: isLoading, action: login)
             }
             .font(.system(size: 20))
             .padding(.horizontal, 100)
@@ -85,9 +56,9 @@ struct LoginView: View {
     }
 
     func login() {
+        isLoading = true
         UserManager.shared.login(username: username, password: password) {
             success, error in
-            isLoading = false
             if success {
                 self.msg = error ?? "登录成功"
                 print("登录成功")
@@ -99,9 +70,11 @@ struct LoginView: View {
                     }
                 }
                 // 登录成功,跳转到主界面
+                state.showToast("登录成功", type: ToastType.success)
                 state.isLogin = true
+                isLoading = false
             } else {
-                self.msg = error ?? "登录失败,请重试"
+                state.showToast(error ?? "登录失败,请重试", type: ToastType.error)
             }
         }
     }

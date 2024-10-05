@@ -35,7 +35,7 @@ struct Singer: Codable {
     /// 歌手ID
     let ID: String
     /// 歌手名称
-    let name: String?
+    let name: String
 }
 
 /// 文件链接信息结构

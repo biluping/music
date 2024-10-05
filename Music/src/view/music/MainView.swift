@@ -18,18 +18,19 @@ struct MainView: View {
             Group {
                 switch selectedMenu {
                 case "search":
-                    MusicSearchView()
+                    SearchView()
                 case "favorites":
                     FavoritesView()
                 default:
                     Text("请选择一个菜单项")
                 }
-            }.padding(.horizontal, 20)
+            }
         }
     }
 }
 
 #Preview {
     MainView()
+        .frame(minWidth: 1056, minHeight: 700)
         .environmentObject(GlobalState())
 }
