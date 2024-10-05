@@ -1,32 +1,22 @@
-//
-//  MusicApp.swift
-//  Music
-//
-//  Created by rabbit on 2024/10/5.
-//
-
-import SwiftUI
+import AppKit
 import SwiftData
+import SwiftUI
 
 @main
 struct MusicApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @StateObject private var state = GlobalState()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                if state.isLogin {
+                    MainView()
+                } else {
+                    LoginView()
+                }
+            }
+            .frame(minWidth: 1056, minHeight: 700)
+            .environmentObject(state)
         }
-        .modelContainer(sharedModelContainer)
     }
 }
