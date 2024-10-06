@@ -8,14 +8,14 @@ struct SearchResultItem: View {
     let playlist: [Song]
     @State private var backgroundColor = Color.gray.opacity(0)
     @State private var isHovered = false
-    @EnvironmentObject var favoritesManager: FavoritesManager
-    @EnvironmentObject var playbackManager: PlaybackManager
+    @StateObject var favoritesVM = FavoritesVM()
+    @EnvironmentObject var playbackVM: PlaybackVM
     
     var body: some View {
         HStack {
             Group {
                 if isHovered {
-                    Image(systemName: playbackManager.isPlaying && playbackManager.currentSong?.ID == song.ID ? "pause" : "play")
+                    Image(systemName: playbackVM.isPlaying && playbackVM.currentSong?.ID == song.ID ? "pause" : "play")
                         .foregroundColor(.blue)
                         .font(.title3)
                         .onTapGesture {
@@ -37,10 +37,10 @@ struct SearchResultItem: View {
             Text(song.album?.name ?? "未知").frame(width: geometryWidth * 0.3, alignment: .leading)
             Spacer()
             Button(action: {
-                favoritesManager.toggleFavorite(song)
+                favoritesVM.toggleFavorite(song)
             }) {
-                Image(systemName: favoritesManager.isFavorite(song) ? "heart.fill" : "heart")
-                    .foregroundColor(favoritesManager.isFavorite(song) ? .red : .gray)
+                Image(systemName: favoritesVM.isFavorite(song) ? "heart.fill" : "heart")
+                    .foregroundColor(favoritesVM.isFavorite(song) ? .red : .gray)
             }
             .buttonStyle(PlainButtonStyle())
             .frame(width: 50)
@@ -66,10 +66,10 @@ struct SearchResultItem: View {
     }
     
     private func handlePlayPause() {
-        if playbackManager.currentSong?.ID == song.ID {
-            playbackManager.togglePlayPause()
+        if playbackVM.currentSong?.ID == song.ID {
+            playbackVM.togglePlayPause()
         } else {
-            playbackManager.playSong(song, playlist: playlist)
+            playbackVM.playSong(song, playlist: playlist)
         }
     }
 }

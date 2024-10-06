@@ -1,8 +1,9 @@
 import Foundation
 import AVFoundation
 import SwiftUI
+import Alamofire
 
-class PlaybackManager: NSObject, ObservableObject {
+class PlaybackVM: NSObject, ObservableObject {
     @Published var currentSong: Song?
     @Published var isPlaying: Bool = false
     @Published var currentPlaybackTime: TimeInterval = 0
@@ -11,6 +12,16 @@ class PlaybackManager: NSObject, ObservableObject {
     
     private var audioPlayer: AVAudioPlayer?
     private var playbackTimer: Timer?
+    
+    private let fileManager = FileManager.default
+    private let cacheDirectory: URL
+    
+    override init() {
+        let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        cacheDirectory = urls[0].appendingPathComponent("MusicCache")
+        super.init()
+        try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
+    }
     
     func playSong(_ song: Song, playlist: [Song]) {
         stopCurrentSong()
@@ -21,7 +32,7 @@ class PlaybackManager: NSObject, ObservableObject {
             currentIndex = index
         }
         
-        MusicApi.shared.getMusicData(platformId: song.platform, songId: song.ID) { data, error in
+        getMusicData(platformId: song.platform, songId: song.ID) { data, error in
             guard let data = data else {
                 print(error ?? "获取音乐失败")
                 return
@@ -42,6 +53,57 @@ class PlaybackManager: NSObject, ObservableObject {
                 print("播放失败: \(error.localizedDescription)")
             }
         }
+    }
+    
+    func getMusicData(platformId: String, songId: String, quality: String = "128", format: String = "mp3", completion: @escaping (Data?, String?) -> Void) {
+        let cacheKey = "\(platformId)_\(songId)_\(quality).\(format)"
+        let cacheFile = cacheDirectory.appendingPathComponent(cacheKey)
+        
+        if fileManager.fileExists(atPath: cacheFile.path) {
+            do {
+                let cachedData = try Data(contentsOf: cacheFile)
+                completion(cachedData, nil)
+                return
+            } catch {
+                print("读取缓存文件失败：\(error)")
+            }
+        }
+        
+        let urlString = "https://music.wjhe.top/api/music/\(platformId)/url"
+        let parameters: [String: String] = [
+            "ID": songId,
+            "quality": quality,
+            "format": format
+        ]
+        
+        let headers: HTTPHeaders = [
+            "Cookie": "access_token=\(UserManager.shared.token!)"
+        ]
+        
+        AF.request(urlString, parameters: parameters, headers: headers)
+            .response { response in
+                if response.response?.statusCode ?? 400 != 200 {
+                    completion(nil, "接口\(response.response?.statusCode ?? 400)")
+                } else {
+                    switch response.result {
+                    case .success(let value):
+                        print("获取 music data 成功")
+                        if let data = value {
+                            // 将结果存入文件缓存
+                            do {
+                                try data.write(to: cacheFile)
+                                print("音乐数据已缓存到文件: \(cacheFile.path)")
+                            } catch {
+                                print("缓存音乐数据到文件失败：\(error)")
+                            }
+                        }
+                        completion(value, nil)
+                    case .failure(let error):
+                        print("获取 music data 失败", error)
+                        completion(nil, error.localizedDescription)
+                    }
+                }
+            }
     }
     
     func togglePlayPause() {
@@ -87,7 +149,7 @@ class PlaybackManager: NSObject, ObservableObject {
     }
 }
 
-extension PlaybackManager: AVAudioPlayerDelegate {
+extension PlaybackVM: AVAudioPlayerDelegate {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
             playNext()

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct NowPlayView: View {
     @EnvironmentObject var state: GlobalState
-    @EnvironmentObject var playbackManager: PlaybackManager
+    @EnvironmentObject var playbackVM: PlaybackVM
     
     private func formatTime(_ time: TimeInterval) -> String {
         let minutes = Int(time) / 60
@@ -13,32 +13,25 @@ struct NowPlayView: View {
     var body: some View {
         VStack {
             HStack {
-                let songName = playbackManager.currentSong?.name ?? ""
-                let singerName = playbackManager.currentSong?.singers?.map {$0.name}.joined(separator: " / ") ?? ""
+                let songName = playbackVM.currentSong?.name ?? ""
+                let singerName = playbackVM.currentSong?.singers?.map {$0.name}.joined(separator: " / ") ?? ""
                 Text("\(songName) - \(singerName)")
                 Spacer()
                 
                 Button(action: {
-                    playbackManager.playPrevious()
+                    playbackVM.playPrevious()
                 }) {
                     Image(systemName: "backward.fill")
                 }.buttonStyle(PlainButtonStyle())
 
                 Button(action: {
-                    playbackManager.togglePlayPause()
+                    playbackVM.togglePlayPause()
                 }) {
-                    Image(systemName: playbackManager.isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: playbackVM.isPlaying ? "pause.fill" : "play.fill")
                 }.buttonStyle(PlainButtonStyle())
-            
-                Button(action: {
-                    playbackManager.stopCurrentSong()
-                }) {
-                    Image(systemName: "stop.fill")
-                }.buttonStyle(PlainButtonStyle())
-            
                 
                 Button(action: {
-                    playbackManager.playNext()
+                    playbackVM.playNext()
                 }) {
                     Image(systemName: "forward.fill")
                 }.buttonStyle(PlainButtonStyle())
@@ -46,20 +39,20 @@ struct NowPlayView: View {
             
             HStack {
                     
-                Text(formatTime(playbackManager.currentPlaybackTime))
+                Text(formatTime(playbackVM.currentPlaybackTime))
                     .font(.caption)
                 
                 Slider(
                     value: Binding(
-                        get: { playbackManager.currentPlaybackTime },
+                        get: { playbackVM.currentPlaybackTime },
                         set: { newValue in
-                            playbackManager.seekTo(time: newValue)
+                            playbackVM.seekTo(time: newValue)
                         }),
-                    in: 0...TimeInterval(playbackManager.currentSong?.duration ?? 0)
+                    in: 0...TimeInterval(playbackVM.currentSong?.duration ?? 0)
                     )
                 .accentColor(.blue)
                 
-                Text(formatTime(TimeInterval(playbackManager.currentSong?.duration ?? 0 )))
+                Text(formatTime(TimeInterval(playbackVM.currentSong?.duration ?? 0 )))
                     .font(.caption)
                 
             }
@@ -69,4 +62,5 @@ struct NowPlayView: View {
 
 #Preview {
     NowPlayView()
+        .environmentObject(PlaybackVM())
 }

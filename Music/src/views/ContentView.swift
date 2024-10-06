@@ -9,13 +9,10 @@ struct ContentView: View {
             if state.isLogin {
                 MainView()
             } else {
-                LoginView()
+                LoginView(plantformVM: PlatformVM())
             }
         }
         .frame(minWidth: 1056, minHeight: 700)
-        .environmentObject(FavoritesManager())
-        .environmentObject(PlatformManager())
-        .environmentObject(PlaybackManager())
     }
 }
 

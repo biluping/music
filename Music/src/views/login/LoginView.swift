@@ -7,7 +7,7 @@ struct LoginView: View {
     @State private var msg = ""
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var state: GlobalState
-    @EnvironmentObject var platformManager: PlatformManager
+    @StateObject var plantformVM: PlatformVM
 
     var body: some View {
         ZStack {
@@ -63,13 +63,7 @@ struct LoginView: View {
             if success {
                 self.msg = error ?? "登录成功"
                 print("登录成功")
-                MusicApi.shared.getPlatformList() { platformList, errMsg in
-                    if let platforms = platformList {
-                        platformManager.savePlatforms(platforms: platforms)
-                    } else {
-                        print(errMsg ?? "获取平台列表失败")
-                    }
-                }
+                plantformVM.fetchPlatforms()
                 // 登录成功,跳转到主界面
                 state.isLogin = true
             } else {
@@ -81,6 +75,6 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView()
+    LoginView(plantformVM: PlatformVM())
         .environmentObject(GlobalState())
 }

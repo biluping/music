@@ -3,7 +3,7 @@ import SwiftUI
 struct MainView: View {
     @State private var selectedMenu: String? = "search"
     @EnvironmentObject private var state: GlobalState
-    @EnvironmentObject private var playbackManager: PlaybackManager
+    @EnvironmentObject private var playbackVM: PlaybackVM
 
     var body: some View {
         NavigationSplitView {
@@ -29,7 +29,7 @@ struct MainView: View {
             }
         }
         .toolbar {
-            if playbackManager.currentSong != nil {
+            if playbackVM.currentSong != nil {
                 ToolbarItem(placement: .principal) {
                     NowPlayView()
                         .frame(width: 300)
@@ -49,7 +49,5 @@ struct MainView: View {
     MainView()
         .frame(minWidth: 1056, minHeight: 700)
         .environmentObject(GlobalState())
-        .environmentObject(FavoritesManager())
-        .environmentObject(PlatformManager())
-        .environmentObject(PlaybackManager())
+        .environmentObject(PlaybackVM())
 }

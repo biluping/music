@@ -1,6 +1,6 @@
 import Foundation
 
-class FavoritesManager: ObservableObject {
+class FavoritesVM: ObservableObject {
     @Published var favoriteSongs: [Song] = [] {
         didSet {
             saveFavoriteSongs()
