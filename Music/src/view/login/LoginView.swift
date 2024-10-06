@@ -64,7 +64,7 @@ struct LoginView: View {
                 print("登录成功")
                 MusicApi.shared.getPlatformList() { platformList, errMsg in
                     if let platforms = platformList {
-                        state.platforms = platforms
+                        state.savePlatforms(platforms: platforms)
                     } else {
                         print(errMsg ?? "获取平台列表失败")
                     }

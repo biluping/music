@@ -8,8 +8,8 @@ struct SearchView: View {
         VStack {
             HStack {
                 Picker("平台", selection: $state.selectedPlatformId) {
-                    ForEach(state.platforms, id: \.id) { platform in
-                        Text(platform.name).tag(platform.id as String?)
+                    ForEach(state.loadPlatforms(), id: \.ID) { platform in
+                        Text(platform.name).tag(platform.ID)
                     }
                 }
                 .frame(width: 150)

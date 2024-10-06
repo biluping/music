@@ -12,21 +12,26 @@ class GlobalState: ObservableObject {
     @Published var playList: [Song] = []
     @Published var currentSong: Song?
     @Published var isPlaying: Bool = false
+    @Published var currentPlaybackTime: TimeInterval = 0
     var audioPlayer: AVAudioPlayer?
+    var playbackTimer: Timer?
+
     
-    var platforms: [Platform] {
-        get {
-            if let platformDicts = UserDefaults.standard.array(forKey: "savedPlatforms") as? [[String: Any]] {
-                return platformDicts.compactMap { Platform(dictionary: $0) }
-            }
-            return []
-        }
-        set {
-            let platformDicts = newValue.map { $0.toDictionary() }
-            UserDefaults.standard.set(platformDicts, forKey: "savedPlatforms")
+    func savePlatforms(platforms: [Platform]) {
+        if let encoded = try? JSONEncoder().encode(platforms) {
+            UserDefaults.standard.set(encoded, forKey: "savedPlatforms")
         }
     }
     
+    func loadPlatforms() -> [Platform] {
+        if let savedPlatforms = UserDefaults.standard.data(forKey: "savedPlatforms"),
+           let decodedPlatforms = try? JSONDecoder().decode([Platform].self, from: savedPlatforms) {
+            return decodedPlatforms
+        } else {
+            return []
+        }
+    }
+
     func showToast(_ message: String, type: ToastType) {
         toast = ToastData(message: message, type: type)
         
@@ -37,6 +42,9 @@ class GlobalState: ObservableObject {
     }
     
     func playSong(_ song: Song) {
+        self.stopCurrentSong()
+        self.currentSong = song
+        
         MusicApi.shared.getMusicData(platformId: song.platform, songId: song.ID) { data, error in
             guard let data = data else {
                 print("无法获取音乐")
@@ -50,7 +58,7 @@ class GlobalState: ObservableObject {
                 DispatchQueue.main.async {
                     self.audioPlayer = player
                     self.audioPlayer?.play()
-                    self.currentSong = song
+                    self.startPlaybackTimer()
                     self.isPlaying = true
                 }
                 
@@ -63,9 +71,29 @@ class GlobalState: ObservableObject {
     func togglePlayPause() {
         if isPlaying {
             audioPlayer?.pause()
+            isPlaying = false
         } else {
             audioPlayer?.play()
+            isPlaying = true
         }
-        isPlaying.toggle()
+    }
+
+    private func startPlaybackTimer() {
+        playbackTimer?.invalidate()
+        playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            self?.currentPlaybackTime = self?.audioPlayer?.currentTime ?? 0
+        }
+    }
+
+    func seekTo(time: TimeInterval) {
+        audioPlayer?.currentTime = time
+    }
+
+    func stopCurrentSong() {
+        audioPlayer?.stop()
+        seekTo(time: 0)
+        audioPlayer?.currentTime = 0
+        currentPlaybackTime = 0
+        isPlaying = false
     }
 }

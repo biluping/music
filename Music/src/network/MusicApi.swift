@@ -19,10 +19,18 @@ class MusicApi {
             .responseString { response in
                 switch response.result {
                 case .success(let value):
-                    let json = JSON(parseJSON: value)
-                    let platforms = json["data"].arrayValue.map { Platform(json: $0) }
-                    print("平台获取成功", platforms)
-                    completion(platforms, nil)
+                    do {
+                        let json = JSON(parseJSON: value)
+                        let platforms = try json["data"].arrayValue.map { platformJson -> Platform in
+                            let platformData = try JSONSerialization.data(withJSONObject: platformJson.object)
+                            return try JSONDecoder().decode(Platform.self, from: platformData)
+                        }
+                        print("平台获取成功", platforms)
+                        completion(platforms, nil)
+                    } catch {
+                        print("解析平台数据失败")
+                        completion(nil, error.localizedDescription)
+                    }
                 case .failure(let err):
                     print("获取平台列表失败")
                     completion(nil, err.localizedDescription)

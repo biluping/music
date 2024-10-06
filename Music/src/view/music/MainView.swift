@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainView: View {
     @State private var selectedMenu: String? = "search"
+    @EnvironmentObject private var state: GlobalState
 
     var body: some View {
         NavigationSplitView {
@@ -23,6 +24,14 @@ struct MainView: View {
                     FavoritesView()
                 default:
                     Text("请选择一个菜单项")
+                }
+            }
+        }
+        .toolbar {
+            if state.currentSong != nil {
+                ToolbarItem(placement: .principal) {
+                    NowPlayView()
+                        .frame(width: 300)
                 }
             }
         }
