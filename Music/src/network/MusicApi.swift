@@ -101,23 +101,29 @@ class MusicApi {
         
         AF.request(urlString, parameters: parameters, headers: getHeader())
             .response { response in
-                switch response.result {
-                case .success(let value):
-                    print("获取 music data 成功")
-                    if let data = value {
-                        // 将结果存入文件缓存
-                        do {
-                            try data.write(to: cacheFile)
-                            print("音乐数据已缓存到文件: \(cacheFile.path)")
-                        } catch {
-                            print("缓存音乐数据到文件失败：\(error)")
+                if response.response?.statusCode ?? 400 != 200 {
+                    completion(nil, "接口\(response.response?.statusCode ?? 400)")
+                } else {
+                    switch response.result {
+                    case .success(let value):
+                        print("获取 music data 成功")
+                        if let data = value {
+                            // 将结果存入文件缓存
+                            do {
+                                try data.write(to: cacheFile)
+                                print("音乐数据已缓存到文件: \(cacheFile.path)")
+                            } catch {
+                                print("缓存音乐数据到文件失败：\(error)")
+                            }
                         }
+                        completion(value, nil)
+                    case .failure(let error):
+                        
+                        print("获取 music data 失败", error)
+                        completion(nil, error.localizedDescription)
                     }
-                    completion(value, nil)
-                case .failure(let error):
-                    print("获取 music data 失败", error)
-                    completion(nil, error.localizedDescription)
                 }
+                
             }
     }
     

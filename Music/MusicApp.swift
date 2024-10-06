@@ -4,10 +4,13 @@ import SwiftUI
 
 @main
 struct MusicApp: App {
+    
+    @StateObject private var state = GlobalState()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(state)
         }
     }
 }

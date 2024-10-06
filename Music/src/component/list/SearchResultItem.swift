@@ -5,15 +5,17 @@ struct SearchResultItem: View {
     let index: Int
     let song: Song
     let geometryWidth: CGFloat
+    let playlist: [Song]
     @State private var backgroundColor = Color.gray.opacity(0)
     @State private var isHovered = false
-    @EnvironmentObject var globalState: GlobalState
+    @EnvironmentObject var favoritesManager: FavoritesManager
+    @EnvironmentObject var playbackManager: PlaybackManager
     
     var body: some View {
         HStack {
             Group {
                 if isHovered {
-                    Image(systemName: globalState.isPlaying && globalState.currentSong?.ID == song.ID ? "pause" : "play")
+                    Image(systemName: playbackManager.isPlaying && playbackManager.currentSong?.ID == song.ID ? "pause" : "play")
                         .foregroundColor(.blue)
                         .font(.title3)
                         .onTapGesture {
@@ -34,7 +36,14 @@ struct SearchResultItem: View {
             SongTitle(song: song).frame(width: geometryWidth * 0.4, alignment: .leading)
             Text(song.album?.name ?? "未知").frame(width: geometryWidth * 0.3, alignment: .leading)
             Spacer()
-            Image(systemName: "heart").frame(width: 50)
+            Button(action: {
+                favoritesManager.toggleFavorite(song)
+            }) {
+                Image(systemName: favoritesManager.isFavorite(song) ? "heart.fill" : "heart")
+                    .foregroundColor(favoritesManager.isFavorite(song) ? .red : .gray)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .frame(width: 50)
             Text(formatDuration(song.duration ?? 0)).frame(width: 50)
         }
         .padding(.vertical, 10)
@@ -57,10 +66,10 @@ struct SearchResultItem: View {
     }
     
     private func handlePlayPause() {
-        if globalState.currentSong?.ID == song.ID {
-            globalState.togglePlayPause()
+        if playbackManager.currentSong?.ID == song.ID {
+            playbackManager.togglePlayPause()
         } else {
-            globalState.playSong(song)
+            playbackManager.playSong(song, playlist: playlist)
         }
     }
 }

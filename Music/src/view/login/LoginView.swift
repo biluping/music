@@ -7,6 +7,7 @@ struct LoginView: View {
     @State private var msg = ""
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var state: GlobalState
+    @EnvironmentObject var platformManager: PlatformManager
 
     var body: some View {
         ZStack {
@@ -64,18 +65,17 @@ struct LoginView: View {
                 print("登录成功")
                 MusicApi.shared.getPlatformList() { platformList, errMsg in
                     if let platforms = platformList {
-                        state.savePlatforms(platforms: platforms)
+                        platformManager.savePlatforms(platforms: platforms)
                     } else {
                         print(errMsg ?? "获取平台列表失败")
                     }
                 }
                 // 登录成功,跳转到主界面
-                state.showToast("登录成功", type: ToastType.success)
                 state.isLogin = true
-                isLoading = false
             } else {
-                state.showToast(error ?? "登录失败,请重试", type: ToastType.error)
+                print(error ?? "登录失败,请重试")
             }
+            isLoading = false
         }
     }
 }

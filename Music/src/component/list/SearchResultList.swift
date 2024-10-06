@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SearchResultList: View {
     @EnvironmentObject private var state: GlobalState
+    let playlist: [Song]
 
     var body: some View {
         GeometryReader { geometry in
@@ -20,10 +21,10 @@ struct SearchResultList: View {
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(spacing: 0) { // 使用 LazyVStack 并设置 spacing: 0
-                        ForEach(Array(state.playList.enumerated()), id: \.element.ID) { index, item in
-                            SearchResultItem(index: index, song: item, geometryWidth: geometry.size.width)
+                        ForEach(Array(playlist.enumerated()), id: \.element.ID) { index, item in
+                            SearchResultItem(index: index, song: item, geometryWidth: geometry.size.width, playlist: playlist)
                             
-                            if index < state.playList.count - 1 {
+                            if index < playlist.count - 1 {
                                 Divider() // 在每个项目之间添加分隔线
                             }
                         }
@@ -36,7 +37,7 @@ struct SearchResultList: View {
 
 struct SearchResultList_Previews: PreviewProvider {
     static var previews: some View {
-        SearchResultList()
+        SearchResultList(playlist: [])
             .environmentObject(GlobalState())
     }
 }

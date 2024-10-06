@@ -1,59 +1,36 @@
 import Foundation
-import SwiftUI
 import AVFoundation
+import SwiftUI
 
-class GlobalState: ObservableObject {
-    
-    @Published var selectedPlatformId: String = "kuwo"
-    @Published var isLogin = false
-    @Published var toast: ToastData?
-    
-    // 播放music相关state
-    @Published var playList: [Song] = []
+class PlaybackManager: NSObject, ObservableObject {
     @Published var currentSong: Song?
     @Published var isPlaying: Bool = false
     @Published var currentPlaybackTime: TimeInterval = 0
-    var audioPlayer: AVAudioPlayer?
-    var playbackTimer: Timer?
-
+    @Published var playlist: [Song] = []
+    @Published var currentIndex: Int = 0
     
-    func savePlatforms(platforms: [Platform]) {
-        if let encoded = try? JSONEncoder().encode(platforms) {
-            UserDefaults.standard.set(encoded, forKey: "savedPlatforms")
-        }
-    }
+    private var audioPlayer: AVAudioPlayer?
+    private var playbackTimer: Timer?
     
-    func loadPlatforms() -> [Platform] {
-        if let savedPlatforms = UserDefaults.standard.data(forKey: "savedPlatforms"),
-           let decodedPlatforms = try? JSONDecoder().decode([Platform].self, from: savedPlatforms) {
-            return decodedPlatforms
-        } else {
-            return []
-        }
-    }
-
-    func showToast(_ message: String, type: ToastType) {
-        toast = ToastData(message: message, type: type)
+    func playSong(_ song: Song, playlist: [Song]) {
+        stopCurrentSong()
+        currentSong = song
+        self.playlist = playlist
         
-        // 3秒后自动隐藏Toast
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            self.toast = nil
+        if let index = playlist.firstIndex(where: { $0.ID == song.ID }) {
+            currentIndex = index
         }
-    }
-    
-    func playSong(_ song: Song) {
-        self.stopCurrentSong()
-        self.currentSong = song
         
         MusicApi.shared.getMusicData(platformId: song.platform, songId: song.ID) { data, error in
             guard let data = data else {
-                print("无法获取音乐")
+                print(error ?? "获取音乐失败")
                 return
             }
             
             do {
                 let player = try AVAudioPlayer(data: data)
                 player.prepareToPlay()
+                player.delegate = self
                 
                 DispatchQueue.main.async {
                     self.audioPlayer = player
@@ -61,7 +38,6 @@ class GlobalState: ObservableObject {
                     self.startPlaybackTimer()
                     self.isPlaying = true
                 }
-                
             } catch {
                 print("播放失败: \(error.localizedDescription)")
             }
@@ -69,31 +45,58 @@ class GlobalState: ObservableObject {
     }
     
     func togglePlayPause() {
+        isPlaying.toggle()
         if isPlaying {
-            audioPlayer?.pause()
-            isPlaying = false
-        } else {
             audioPlayer?.play()
-            isPlaying = true
+        } else {
+            audioPlayer?.pause()
         }
     }
-
+    
     private func startPlaybackTimer() {
         playbackTimer?.invalidate()
         playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             self?.currentPlaybackTime = self?.audioPlayer?.currentTime ?? 0
         }
     }
-
+    
     func seekTo(time: TimeInterval) {
         audioPlayer?.currentTime = time
     }
-
+    
     func stopCurrentSong() {
         audioPlayer?.stop()
         seekTo(time: 0)
         audioPlayer?.currentTime = 0
         currentPlaybackTime = 0
         isPlaying = false
+    }
+    
+    func playNext() {
+        currentIndex = (currentIndex + 1) % playlist.count
+        if let nextSong = playlist[safe: currentIndex] {
+            playSong(nextSong, playlist: self.playlist)
+        }
+    }
+    
+    func playPrevious() {
+        currentIndex = (currentIndex - 1 + playlist.count) % playlist.count
+        if let previousSong = playlist[safe: currentIndex] {
+            playSong(previousSong, playlist: self.playlist)
+        }
+    }
+}
+
+extension PlaybackManager: AVAudioPlayerDelegate {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if flag {
+            playNext()
+        }
+    }
+}
+
+extension Array {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }

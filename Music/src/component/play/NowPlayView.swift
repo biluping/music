@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NowPlayView: View {
     @EnvironmentObject var state: GlobalState
+    @EnvironmentObject var playbackManager: PlaybackManager
     
     private func formatTime(_ time: TimeInterval) -> String {
         let minutes = Int(time) / 60
@@ -12,41 +13,53 @@ struct NowPlayView: View {
     var body: some View {
         VStack {
             HStack {
-                let songName = state.currentSong?.name ?? ""
-                let singerName = state.currentSong?.singers?.map {$0.name}.joined(separator: " / ") ?? ""
+                let songName = playbackManager.currentSong?.name ?? ""
+                let singerName = playbackManager.currentSong?.singers?.map {$0.name}.joined(separator: " / ") ?? ""
                 Text("\(songName) - \(singerName)")
                 Spacer()
                 
                 Button(action: {
-                    state.togglePlayPause()
+                    playbackManager.playPrevious()
                 }) {
-                    Image(systemName: state.isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: "backward.fill")
+                }.buttonStyle(PlainButtonStyle())
+
+                Button(action: {
+                    playbackManager.togglePlayPause()
+                }) {
+                    Image(systemName: playbackManager.isPlaying ? "pause.fill" : "play.fill")
                 }.buttonStyle(PlainButtonStyle())
             
                 Button(action: {
-                    state.stopCurrentSong()
+                    playbackManager.stopCurrentSong()
                 }) {
                     Image(systemName: "stop.fill")
                 }.buttonStyle(PlainButtonStyle())
+            
                 
+                Button(action: {
+                    playbackManager.playNext()
+                }) {
+                    Image(systemName: "forward.fill")
+                }.buttonStyle(PlainButtonStyle())
             }
             
             HStack {
                     
-                Text(formatTime(state.currentPlaybackTime))
+                Text(formatTime(playbackManager.currentPlaybackTime))
                     .font(.caption)
                 
                 Slider(
                     value: Binding(
-                        get: { state.currentPlaybackTime },
+                        get: { playbackManager.currentPlaybackTime },
                         set: { newValue in
-                            state.seekTo(time: newValue)
+                            playbackManager.seekTo(time: newValue)
                         }),
-                        in: 0...TimeInterval(state.currentSong?.duration ?? 0)
+                    in: 0...TimeInterval(playbackManager.currentSong?.duration ?? 0)
                     )
                 .accentColor(.blue)
                 
-                Text(formatTime(TimeInterval(state.currentSong?.duration ?? 0 )))
+                Text(formatTime(TimeInterval(playbackManager.currentSong?.duration ?? 0 )))
                     .font(.caption)
                 
             }

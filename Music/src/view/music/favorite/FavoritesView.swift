@@ -1,14 +1,24 @@
 import SwiftUI
 
 struct FavoritesView: View {
+    @EnvironmentObject var state: GlobalState
+    @EnvironmentObject var favoritesManager: FavoritesManager
+    
     var body: some View {
-        Text("我的收藏将显示在这里")
-            .navigationTitle("我的收藏")
+        VStack {
+            if favoritesManager.favoriteSongs.isEmpty {
+                Text("还没有收藏的歌曲")
+                    .font(.title)
+                    .foregroundColor(.gray)
+            } else {
+                SearchResultList(playlist: favoritesManager.favoriteSongs)
+            }
+        }
+        .navigationTitle("我的收藏")
     }
 }
 
-struct FavoritesView_Previews: PreviewProvider {
-    static var previews: some View {
-        FavoritesView()
-    }
+#Preview {
+    FavoritesView()
+        .environmentObject(GlobalState())
 }

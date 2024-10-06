@@ -2,33 +2,24 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @StateObject private var state = GlobalState()
+    @EnvironmentObject private var state: GlobalState
     
     var body: some View {
-        ZStack(alignment: .top) {
-            Group {
-                if state.isLogin {
-                    MainView()
-                } else {
-                    LoginView()
-                }
-            }
-            .frame(minWidth: 1056, minHeight: 700)
-            
-            if let toastData = state.toast {
-                VStack {
-                    Spacer()
-                    ToastView(message: toastData.message, type: toastData.type)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                        .animation(.easeInOut, value: state.toast != nil)
-                        .zIndex(1)
-                }
+        Group {
+            if state.isLogin {
+                MainView()
+            } else {
+                LoginView()
             }
         }
-        .environmentObject(state)
+        .frame(minWidth: 1056, minHeight: 700)
+        .environmentObject(FavoritesManager())
+        .environmentObject(PlatformManager())
+        .environmentObject(PlaybackManager())
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(GlobalState())
 }
