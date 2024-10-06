@@ -1,12 +1,18 @@
 import Foundation
 import SwiftUI
+import AVFoundation
 
 class GlobalState: ObservableObject {
     
     @Published var selectedPlatformId: String = "kuwo"
     @Published var isLogin = false
-    @Published var playList: [Song] = []
     @Published var toast: ToastData?
+    
+    // 播放music相关state
+    @Published var playList: [Song] = []
+    @Published var currentSong: Song?
+    @Published var isPlaying: Bool = false
+    var audioPlayer: AVAudioPlayer?
     
     var platforms: [Platform] {
         get {
@@ -28,5 +34,38 @@ class GlobalState: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.toast = nil
         }
+    }
+    
+    func playSong(_ song: Song) {
+        MusicApi.shared.getMusicData(platformId: song.platform, songId: song.ID) { data, error in
+            guard let data = data else {
+                print("无法获取音乐")
+                return
+            }
+            
+            do {
+                let player = try AVAudioPlayer(data: data)
+                player.prepareToPlay()
+                
+                DispatchQueue.main.async {
+                    self.audioPlayer = player
+                    self.audioPlayer?.play()
+                    self.currentSong = song
+                    self.isPlaying = true
+                }
+                
+            } catch {
+                print("播放失败: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func togglePlayPause() {
+        if isPlaying {
+            audioPlayer?.pause()
+        } else {
+            audioPlayer?.play()
+        }
+        isPlaying.toggle()
     }
 }

@@ -42,7 +42,7 @@ struct SongTitle: View {
 
 #Preview {
     
-    let song = Song(title: "惊鸿一面", name: "惊鸿一面", ID: "4856712", duration: 111, mvID: "4856712", album: nil, singers: [Singer(ID: "11", name: "许嵩"), Singer(ID: "11", name: "黄龄")], fileLinks: [FileLink(name: "flac", quality: 2000, format: "flac", size: 28689040)], platform: nil, subTitle: nil)
+    let song = Song(title: "惊鸿一面", name: "惊鸿一面", ID: "4856712", duration: 111, mvID: "4856712", album: nil, singers: [Singer(ID: "11", name: "许嵩"), Singer(ID: "11", name: "黄龄")], fileLinks: [FileLink(name: "flac", quality: 2000, format: "flac", size: 28689040)], platform: "kuwo", subTitle: nil)
     
     SongTitle(song: song).frame(width: 200, height: 100)
 }

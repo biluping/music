@@ -202,5 +202,5 @@ method: GET
 
 
 4. 音乐播放/下载
-url: /music/kuwo/url?ID={id}&quality={quality}&format={format}
+url: /music/kuwo/url?ID={id}&quality=128&format=mp3
 method: GET

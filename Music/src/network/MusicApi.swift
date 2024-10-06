@@ -60,5 +60,26 @@ class MusicApi {
             }
     }
     
+    func getMusicData(platformId: String, songId: String, quality: String = "128", format: String = "mp3", completion: @escaping (Data?, String?) -> Void) {
+        let urlString = "https://music.wjhe.top/api/music/\(platformId)/url"
+        let parameters: [String: String] = [
+            "ID": songId,
+            "quality": quality,
+            "format": format
+        ]
+        
+        AF.request(urlString, parameters: parameters, headers: getHeader())
+            .response { response in
+                switch response.result {
+                case .success(let value):
+                    print("获取 music data 成功")
+                    completion(value, nil)
+                case .failure(let error):
+                    print("获取 music data 失败", error)
+                    completion(nil, error.localizedDescription)
+                }
+            }
+    }
+    
     // 其他API方法(搜索、获取音乐URL等)将在这里实现
 }

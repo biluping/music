@@ -17,7 +17,7 @@ struct Song: Codable {
     /// 文件链接列表
     let fileLinks: [FileLink]?
     /// 音乐平台
-    let platform: String?
+    let platform: String
     /// 副标题，可能不存在
     let subTitle: String?
 }
