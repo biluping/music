@@ -6,12 +6,6 @@ import Alamofire
 class PlaybackVM: NSObject, ObservableObject {
     
     static let shared = PlaybackVM()
-    private override init() {
-        let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        cacheDirectory = urls[0].appendingPathComponent("MusicCache")
-        super.init()
-        try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
-    }
     
     @Published var currentSong: Song?
     @Published var isPlaying: Bool = false
@@ -25,23 +19,24 @@ class PlaybackVM: NSObject, ObservableObject {
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
     
+    private override init() {
+        let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        cacheDirectory = urls[0].appendingPathComponent("MusicCache")
+        super.init()
+        try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
+    }
     
     func playSong(_ song: Song, playlist: [Song]) {
         stopCurrentSong()
         currentSong = song
         self.playlist = playlist
+        currentIndex = playlist.firstIndex(where: { $0.ID == song.ID }) ?? 0
         
-        if let index = playlist.firstIndex(where: { $0.ID == song.ID }) {
-            currentIndex = index
-        }
-        
-        getMusicData(platformId: song.platform, songId: song.ID) { data in
-            if data == nil {
-                return
-            }
+        getMusicData(platformId: song.platform, songId: song.ID) { [weak self] data in
+            guard let self = self, let data = data else { return }
             
             do {
-                let player = try AVAudioPlayer(data: data!)
+                let player = try AVAudioPlayer(data: data)
                 player.prepareToPlay()
                 player.delegate = self
                 
@@ -61,14 +56,9 @@ class PlaybackVM: NSObject, ObservableObject {
         let cacheKey = "\(platformId)_\(songId)_\(quality).\(format)"
         let cacheFile = cacheDirectory.appendingPathComponent(cacheKey)
         
-        if fileManager.fileExists(atPath: cacheFile.path) {
-            do {
-                let cachedData = try Data(contentsOf: cacheFile)
-                completion(cachedData)
-                return
-            } catch {
-                GlobalState.shared.showErrMsg("读取缓存文件失败：\(error)")
-            }
+        if let cachedData = try? Data(contentsOf: cacheFile) {
+            completion(cachedData)
+            return
         }
         
         GlobalState.shared.showErrMsg("正在网络获取音乐")
@@ -84,26 +74,21 @@ class PlaybackVM: NSObject, ObservableObject {
         ]
         
         AF.request(urlString, parameters: parameters, headers: headers)
-            .response { response in
-                if response.response!.statusCode != 200 {
-                    GlobalState.shared.showErrMsg("接口错误: \(response.response!.statusCode)")
-                    completion(nil)
-                } else {
-                    switch response.result {
-                    case .success(let value):
-                        if let data = value {
-                            do {
-                                try data.write(to: cacheFile)
-                            } catch {
-                                GlobalState.shared.showErrMsg("缓存音乐数据到文件失败：\(error)")
-                            }
-                        }
+            .validate()
+            .responseData { response in
+                switch response.result {
+                case .success(let data):
+                    do {
+                        try data.write(to: cacheFile)
                         GlobalState.shared.showErrMsg("网络获取音乐成功")
-                        completion(value)
-                    case .failure(let error):
-                        GlobalState.shared.showErrMsg("获取 music data 失败, err: " + error.localizedDescription)
-                        completion(nil)
+                        completion(data)
+                    } catch {
+                        GlobalState.shared.showErrMsg("缓存音乐数据到文件失败：\(error)")
+                        completion(data)
                     }
+                case .failure(let error):
+                    GlobalState.shared.showErrMsg("获取 music data 失败, err: \(error.localizedDescription)")
+                    completion(nil)
                 }
             }
     }
@@ -130,7 +115,6 @@ class PlaybackVM: NSObject, ObservableObject {
     
     func stopCurrentSong() {
         audioPlayer?.stop()
-        seekTo(time: 0)
         audioPlayer?.currentTime = 0
         currentPlaybackTime = 0
         isPlaying = false
@@ -139,14 +123,14 @@ class PlaybackVM: NSObject, ObservableObject {
     func playNext() {
         currentIndex = (currentIndex + 1) % playlist.count
         if let nextSong = playlist[safe: currentIndex] {
-            playSong(nextSong, playlist: self.playlist)
+            playSong(nextSong, playlist: playlist)
         }
     }
     
     func playPrevious() {
         currentIndex = (currentIndex - 1 + playlist.count) % playlist.count
         if let previousSong = playlist[safe: currentIndex] {
-            playSong(previousSong, playlist: self.playlist)
+            playSong(previousSong, playlist: playlist)
         }
     }
 }
