@@ -11,6 +11,7 @@ class GlobalState: ObservableObject {
 
     func showErrMsg(_ message: String) {
         self.message = message
+        print(message)
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.message = nil
         }

@@ -35,12 +35,6 @@ struct MainView: View {
                         .frame(width: 300)
                 }
             }
-            
-            if let message = state.message {
-                ToolbarItem(placement: .automatic) {
-                    Text(message)
-                }
-            }
         }
     }
 }

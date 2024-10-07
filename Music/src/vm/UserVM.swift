@@ -31,10 +31,11 @@ class UserVM {
                         self.token = data.token
                         completion(nil)
                     } else {
+                        GlobalState.shared.showErrMsg(res.common.msg)
                         completion(res.common.msg)
                     }
                 case .failure(let error):
-                    debugPrint(response)
+                    GlobalState.shared.showErrMsg(error.localizedDescription)
                     completion(error.localizedDescription)
                 }
             }
