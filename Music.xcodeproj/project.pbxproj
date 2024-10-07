@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		33FF02502CB10D45003898D8 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 33FF024F2CB10D45003898D8 /* Alamofire */; };
-		33FF02592CB11020003898D8 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 33FF02582CB11020003898D8 /* SwiftyJSON */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,7 +27,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				33FF02592CB11020003898D8 /* SwiftyJSON in Frameworks */,
 				33FF02502CB10D45003898D8 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -73,7 +71,6 @@
 			name = Music;
 			packageProductDependencies = (
 				33FF024F2CB10D45003898D8 /* Alamofire */,
-				33FF02582CB11020003898D8 /* SwiftyJSON */,
 			);
 			productName = Music;
 			productReference = 33C54EDC2CB0F9DB002B0967 /* Music.app */;
@@ -105,7 +102,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				33FF024E2CB10D45003898D8 /* XCRemoteSwiftPackageReference "Alamofire" */,
-				33FF02572CB11020003898D8 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 33C54EDD2CB0F9DB002B0967 /* Products */;
@@ -277,7 +273,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.myboy.Music;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -306,7 +302,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.myboy.Music;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -346,14 +342,6 @@
 				minimumVersion = 5.9.1;
 			};
 		};
-		33FF02572CB11020003898D8 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -361,11 +349,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 33FF024E2CB10D45003898D8 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
-		};
-		33FF02582CB11020003898D8 /* SwiftyJSON */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 33FF02572CB11020003898D8 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
-			productName = SwiftyJSON;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

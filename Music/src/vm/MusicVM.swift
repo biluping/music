@@ -1,6 +1,5 @@
 import Foundation
 import Alamofire
-import SwiftyJSON
 import SwiftUI
 
 class MusicVM: ObservableObject {
