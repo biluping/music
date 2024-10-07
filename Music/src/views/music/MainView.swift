@@ -48,5 +48,4 @@ struct MainView: View {
 #Preview {
     MainView()
         .frame(minWidth: 1056, minHeight: 700)
-        .environmentObject(PlaybackVM())
 }

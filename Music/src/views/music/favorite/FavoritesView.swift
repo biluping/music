@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct FavoritesView: View {
-    @StateObject var favoritesVM = FavoritesVM()
+    @StateObject var favoritesVM = FavoritesVM.shared
     
     var body: some View {
         VStack {

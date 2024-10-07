@@ -4,11 +4,15 @@ import SwiftyJSON
 import SwiftUI
 
 class MusicVM: ObservableObject {
+    
+    static let shared = MusicVM()
+    private init() {}
+    
     @Published var musicList: [Song] = []
     
     func getHeader() -> HTTPHeaders {
         return [
-            "Cookie": "access_token=\(UserManager.shared.token!)"
+            "Cookie": "access_token=\(UserVM.shared.token!)"
         ]
     }
     

@@ -3,7 +3,7 @@ import SwiftUI
 struct SearchView: View {
     @State private var searchText = ""
     @State private var searching = false
-    @StateObject private var musicVM = MusicVM()
+    @StateObject private var musicVM = MusicVM.shared
     @StateObject private var plantformVM = PlatformVM.shared
     @StateObject private var state = GlobalState.shared
 

@@ -2,9 +2,8 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
-class UserManager {
-    static let shared = UserManager()
-    
+class UserVM {
+    static let shared = UserVM()
     private init() {}
     
     var token: String? {

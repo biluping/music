@@ -1,14 +1,16 @@
 import Foundation
 
 class FavoritesVM: ObservableObject {
+    static let shared = FavoritesVM()
+    private init() {
+        loadFavoriteSongs()
+    }
+    
+    
     @Published var favoriteSongs: [Song] = [] {
         didSet {
             saveFavoriteSongs()
         }
-    }
-    
-    init() {
-        loadFavoriteSongs()
     }
     
     func toggleFavorite(_ song: Song) {

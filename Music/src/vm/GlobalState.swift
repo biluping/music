@@ -3,12 +3,11 @@ import SwiftUI
 
 class GlobalState: ObservableObject {
     static let shared = GlobalState()
+    private init() {}
     
     @Published var selectedPlatformId: String = "kuwo"
     @Published var isLogin = false
     @Published var message: String?
-
-    private init() {}
 
     func showErrMsg(_ message: String) {
         self.message = message

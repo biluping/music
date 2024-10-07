@@ -5,6 +5,7 @@ import SwiftyJSON
 class PlatformVM: ObservableObject {
     
     static let shared = PlatformVM()
+    private init() {}
     
     func savePlatforms(platforms: [Platform]) {
         if let encoded = try? JSONEncoder().encode(platforms) {
@@ -23,7 +24,7 @@ class PlatformVM: ObservableObject {
     
     func fetchPlatforms() {
         let headers: HTTPHeaders = [
-            "Cookie": "access_token=\(UserManager.shared.token!)"
+            "Cookie": "access_token=\(UserVM.shared.token!)"
         ]
         
         AF.request("https://music.wjhe.top/api/music/list", headers: headers)

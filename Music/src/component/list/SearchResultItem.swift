@@ -8,7 +8,7 @@ struct SearchResultItem: View {
     let playlist: [Song]
     @State private var backgroundColor = Color.gray.opacity(0)
     @State private var isHovered = false
-    @StateObject var favoritesVM = FavoritesVM()
+    @StateObject var favoritesVM = FavoritesVM.shared
     @StateObject var playbackVM = PlaybackVM.shared
     
     var body: some View {

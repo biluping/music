@@ -57,7 +57,7 @@ struct LoginView: View {
 
     func login() {
         isLoading = true
-        UserManager.shared.login(username: username, password: password) {
+        UserVM.shared.login(username: username, password: password) {
             success, error in
             if success {
                 self.msg = error ?? "登录成功"

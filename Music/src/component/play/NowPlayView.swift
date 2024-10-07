@@ -61,5 +61,4 @@ struct NowPlayView: View {
 
 #Preview {
     NowPlayView()
-        .environmentObject(PlaybackVM())
 }

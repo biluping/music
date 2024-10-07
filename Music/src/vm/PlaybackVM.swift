@@ -6,6 +6,12 @@ import Alamofire
 class PlaybackVM: NSObject, ObservableObject {
     
     static let shared = PlaybackVM()
+    private override init() {
+        let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        cacheDirectory = urls[0].appendingPathComponent("MusicCache")
+        super.init()
+        try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
+    }
     
     @Published var currentSong: Song?
     @Published var isPlaying: Bool = false
@@ -19,12 +25,6 @@ class PlaybackVM: NSObject, ObservableObject {
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
     
-    override init() {
-        let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        cacheDirectory = urls[0].appendingPathComponent("MusicCache")
-        super.init()
-        try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
-    }
     
     func playSong(_ song: Song, playlist: [Song]) {
         stopCurrentSong()
@@ -80,7 +80,7 @@ class PlaybackVM: NSObject, ObservableObject {
         ]
         
         let headers: HTTPHeaders = [
-            "Cookie": "access_token=\(UserManager.shared.token!)"
+            "Cookie": "access_token=\(UserVM.shared.token!)"
         ]
         
         AF.request(urlString, parameters: parameters, headers: headers)
