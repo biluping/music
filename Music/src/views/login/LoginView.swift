@@ -4,7 +4,6 @@ struct LoginView: View {
     @State private var username = "linuxdo"
     @State private var password = "linuxdo"
     @State private var isLoading = false
-    @State private var msg = ""
     @Environment(\.colorScheme) var colorScheme
     @StateObject var plantformVM = PlatformVM.shared
 
@@ -57,16 +56,12 @@ struct LoginView: View {
 
     func login() {
         isLoading = true
-        UserVM.shared.login(username: username, password: password) {
-            success, error in
-            if success {
-                self.msg = error ?? "登录成功"
-                print("登录成功")
+        UserVM.shared.login(username: username, password: password) { errMsg in
+            if errMsg == nil {
                 plantformVM.fetchPlatforms()
-                // 登录成功,跳转到主界面
                 GlobalState.shared.isLogin = true
             } else {
-                print(error ?? "登录失败,请重试")
+                print(errMsg ?? "登录失败")
             }
             isLoading = false
         }

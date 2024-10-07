@@ -1,6 +1,5 @@
 import Foundation
 import Alamofire
-import SwiftyJSON
 
 class UserVM {
     static let shared = UserVM()
@@ -15,7 +14,7 @@ class UserVM {
         }
     }
     
-    func login(username: String, password: String, completion: @escaping (Bool, String?) -> Void) {
+    func login(username: String, password: String, completion: @escaping (String?) -> Void) {
         let parameters: [String: String] = [
             "userID": username,
             "password": password
@@ -25,19 +24,18 @@ class UserVM {
                    method: .post, 
                    parameters: parameters, 
                    encoder: URLEncodedFormParameterEncoder.default)
-            .responseString { response in
+            .responseDecodable(of: ResVO<LoginData>.self) { response in
                 switch response.result {
-                case .success(let value):
-                    let json = JSON(parseJSON: value)
-                    if let token = json["data"]["token"].string {
-                        self.token = token
-                        completion(true, nil)
+                case .success(let res):
+                    if let data = res.data {
+                        self.token = data.token
+                        completion(nil)
                     } else {
-                        completion(false, json["common"]["msg"].string)
+                        completion(res.common.msg)
                     }
                 case .failure(let error):
-                    print(response.value ?? "null")
-                    completion(false, error.localizedDescription)
+                    debugPrint(response)
+                    completion(error.localizedDescription)
                 }
             }
     }
