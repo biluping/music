@@ -3,4 +3,68 @@
    uuid = "2DFAE19D-DE52-4E72-8F21-CCC28EDF9263"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "83530E3C-D98B-4407-A5A6-9B70C3FF5A20"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Music/src/vm/PlaybackVM.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "67"
+            endingLineNumber = "67"
+            landmarkName = "playSong(_:playlist:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "83530E3C-D98B-4407-A5A6-9B70C3FF5A20 - c8a5698601cc0251"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Music.PlaybackVM.playSong(_: Music.Song, playlist: Swift.Array&lt;Music.Song&gt;) -&gt; ()"
+                  moduleName = "Music.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/rabbit/my/project/swift/Music/Music/src/vm/PlaybackVM.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "66"
+                  endingLineNumber = "66">
+               </Location>
+               <Location
+                  uuid = "83530E3C-D98B-4407-A5A6-9B70C3FF5A20 - 6569a1d8e25943b7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #3 (Swift.Optional&lt;Music.LyricData&gt;) -&gt; () in Music.PlaybackVM.playSong(_: Music.Song, playlist: Swift.Array&lt;Music.Song&gt;) -&gt; ()"
+                  moduleName = "Music.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/rabbit/my/project/swift/Music/Music/src/vm/PlaybackVM.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "66"
+                  endingLineNumber = "66">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1DECB5E2-F74B-47F0-9DF9-FC892D69C9BF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Music/src/vm/PlaybackVM.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "69"
+            endingLineNumber = "69"
+            landmarkName = "playSong(_:playlist:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

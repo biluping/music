@@ -13,7 +13,9 @@ class PlaybackVM: NSObject, ObservableObject {
     @Published var playlist: [Song] = []
     @Published var currentIndex: Int = 0
     @Published var currentSongCover: Image?
-
+    @Published var currentLyric: String = ""
+    private var lyrics: [(timeStamp: TimeInterval, content: String)] = []
+    
     private var audioPlayer: AVAudioPlayer?
     private var playbackTimer: Timer?
     
@@ -31,6 +33,7 @@ class PlaybackVM: NSObject, ObservableObject {
         stopCurrentSong()
         currentSong = song
         self.playlist = playlist
+        self.currentLyric = ""
         currentIndex = playlist.firstIndex(where: { $0.ID == song.ID }) ?? 0
 
         // 先获取歌曲封面
@@ -58,6 +61,57 @@ class PlaybackVM: NSObject, ObservableObject {
                     GlobalState.shared.showErrMsg("音乐播放失败: \(error.localizedDescription)")
                 }
             }
+        }
+        
+        // 获取歌词
+        getLyricData(platformId: song.platform, songId: song.ID) { [weak self] lyricData in
+            if let lyricData = lyricData {
+                self?.parseLyrics(lyricData.lyric)
+            }
+        }
+    }
+    
+    private func parseLyrics(_ lyricsString: String) {
+        lyrics.removeAll()
+        let lines = lyricsString.components(separatedBy: .newlines)
+        
+        for line in lines {
+            if line.hasPrefix("[") && line.contains("]") {
+                let components = line.components(separatedBy: "]")
+                if components.count >= 2 {
+                    let timeString = components[0].trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+                    let content = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                    
+                    if let timeStamp = parseTimeStamp(timeString) {
+                        lyrics.append((timeStamp: timeStamp, content: content))
+                    }
+                }
+            }
+        }
+        
+        print(lyrics)
+        
+        lyrics.sort { $0.timeStamp < $1.timeStamp }
+    }
+    
+    private func parseTimeStamp(_ timeString: String) -> TimeInterval? {
+        let components = timeString.components(separatedBy: ":")
+        guard components.count == 2,
+              let minutes = Double(components[0]),
+              let seconds = Double(components[1]) else {
+            return nil
+        }
+        return minutes * 60 + seconds
+    }
+    
+    private func updateCurrentLyric() {
+        guard !lyrics.isEmpty else { return }
+        
+        let currentTime = currentPlaybackTime
+        if let currentLyric = lyrics.last(where: { $0.timeStamp <= currentTime }) {
+            self.currentLyric = currentLyric.content
+        } else {
+            self.currentLyric = ""
         }
     }
     
@@ -147,6 +201,47 @@ class PlaybackVM: NSObject, ObservableObject {
                 }
             }
     }
+
+    func getLyricData(platformId: String, songId: String, completion: @escaping (LyricData?) -> Void) {
+        let cacheKey = "\(platformId)_\(songId)_lyric"
+        let cacheFile = cacheDirectory.appendingPathComponent(cacheKey)
+        
+        // 尝试从缓存中读取歌词数据
+        if let cachedData = try? Data(contentsOf: cacheFile),
+           let lyricData = try? JSONDecoder().decode(LyricData.self, from: cachedData) {
+            completion(lyricData)
+            return
+        }
+        
+        let urlString = "https://music.wjhe.top/api/music/\(platformId)/lyric"
+        let parameters: [String: String] = [
+            "ID": songId
+        ]
+        
+        let headers: HTTPHeaders = [
+            "Cookie": "access_token=\(UserVM.shared.token!)"
+        ]
+        
+        AF.request(urlString, parameters: parameters, headers: headers)
+            .validate()
+            .responseDecodable(of: ResVO<LyricData>.self) { response in
+                switch response.result {
+                case .success(let res):
+                    // 将歌词数据缓存到磁盘
+                    if let encodedData = try? JSONEncoder().encode(res.data) {
+                        do {
+                            try encodedData.write(to: cacheFile)
+                        } catch {
+                            GlobalState.shared.showErrMsg("缓存歌词数据到文件失败：\(error)")
+                        }
+                    }
+                    completion(res.data)
+                case .failure(let error):
+                    GlobalState.shared.showErrMsg("获取歌词数据失败: \(error)")
+                    completion(nil)
+                }
+            }
+    }
     
     func togglePlayPause() {
         isPlaying.toggle()
@@ -159,8 +254,10 @@ class PlaybackVM: NSObject, ObservableObject {
     
     private func startPlaybackTimer() {
         playbackTimer?.invalidate()
-        playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            self?.currentPlaybackTime = self?.audioPlayer?.currentTime ?? 0
+        playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            self.currentPlaybackTime = self.audioPlayer?.currentTime ?? 0
+            self.updateCurrentLyric()
         }
     }
     
