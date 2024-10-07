@@ -6,8 +6,7 @@ struct LoginView: View {
     @State private var isLoading = false
     @State private var msg = ""
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var state: GlobalState
-    @StateObject var plantformVM: PlatformVM
+    @StateObject var plantformVM = PlatformVM.shared
 
     var body: some View {
         ZStack {
@@ -65,7 +64,7 @@ struct LoginView: View {
                 print("登录成功")
                 plantformVM.fetchPlatforms()
                 // 登录成功,跳转到主界面
-                state.isLogin = true
+                GlobalState.shared.isLogin = true
             } else {
                 print(error ?? "登录失败,请重试")
             }
@@ -75,6 +74,5 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView(plantformVM: PlatformVM())
-        .environmentObject(GlobalState())
+    LoginView()
 }

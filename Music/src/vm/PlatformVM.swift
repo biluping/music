@@ -4,6 +4,8 @@ import SwiftyJSON
 
 class PlatformVM: ObservableObject {
     
+    static let shared = PlatformVM()
+    
     func savePlatforms(platforms: [Platform]) {
         if let encoded = try? JSONEncoder().encode(platforms) {
             UserDefaults.standard.set(encoded, forKey: "savedPlatforms")

@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SearchResultList: View {
-    @EnvironmentObject private var state: GlobalState
     let playlist: [Song]
 
     var body: some View {
@@ -38,6 +37,5 @@ struct SearchResultList: View {
 struct SearchResultList_Previews: PreviewProvider {
     static var previews: some View {
         SearchResultList(playlist: [])
-            .environmentObject(GlobalState())
     }
 }

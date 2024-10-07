@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct MainView: View {
-    @State private var selectedMenu: String? = "search"
-    @EnvironmentObject private var state: GlobalState
-    @EnvironmentObject private var playbackVM: PlaybackVM
+    @State private var selectedMenu = "search"
+    @StateObject private var state = GlobalState.shared
+    @StateObject private var playbackVM = PlaybackVM.shared
 
     var body: some View {
         NavigationSplitView {
@@ -36,9 +36,9 @@ struct MainView: View {
                 }
             }
             
-            if let errMsg = state.errorMsg {
+            if let message = state.message {
                 ToolbarItem(placement: .automatic) {
-                    Text(errMsg)
+                    Text(message)
                 }
             }
         }
@@ -48,6 +48,5 @@ struct MainView: View {
 #Preview {
     MainView()
         .frame(minWidth: 1056, minHeight: 700)
-        .environmentObject(GlobalState())
         .environmentObject(PlaybackVM())
 }

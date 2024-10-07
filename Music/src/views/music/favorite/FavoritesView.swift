@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct FavoritesView: View {
-    @EnvironmentObject var state: GlobalState
     @StateObject var favoritesVM = FavoritesVM()
     
     var body: some View {
@@ -20,5 +19,4 @@ struct FavoritesView: View {
 
 #Preview {
     FavoritesView()
-        .environmentObject(GlobalState())
 }

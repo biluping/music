@@ -1,15 +1,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    
-    @EnvironmentObject private var state: GlobalState
+    @StateObject private var state = GlobalState.shared
     
     var body: some View {
         Group {
             if state.isLogin {
                 MainView()
             } else {
-                LoginView(plantformVM: PlatformVM())
+                LoginView()
             }
         }
         .frame(minWidth: 1056, minHeight: 700)
@@ -18,5 +17,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(GlobalState())
 }

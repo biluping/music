@@ -27,10 +27,11 @@ class MusicVM: ObservableObject {
                         self.musicList = songs
                     } else {
                         debugPrint(response)
+                        GlobalState.shared.showErrMsg("搜索音乐发生异")
                     }
                 case .failure(let err):
-                    print("搜索音乐发生异常", err)
                     debugPrint(response)
+                    GlobalState.shared.showErrMsg("搜索音乐发生异常：" + err.localizedDescription)
                 }
                 completion()
             }

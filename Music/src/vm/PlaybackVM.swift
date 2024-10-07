@@ -4,6 +4,9 @@ import SwiftUI
 import Alamofire
 
 class PlaybackVM: NSObject, ObservableObject {
+    
+    static let shared = PlaybackVM()
+    
     @Published var currentSong: Song?
     @Published var isPlaying: Bool = false
     @Published var currentPlaybackTime: TimeInterval = 0
@@ -32,14 +35,13 @@ class PlaybackVM: NSObject, ObservableObject {
             currentIndex = index
         }
         
-        getMusicData(platformId: song.platform, songId: song.ID) { data, error in
-            guard let data = data else {
-                print(error ?? "获取音乐失败")
+        getMusicData(platformId: song.platform, songId: song.ID) { data in
+            if data == nil {
                 return
             }
             
             do {
-                let player = try AVAudioPlayer(data: data)
+                let player = try AVAudioPlayer(data: data!)
                 player.prepareToPlay()
                 player.delegate = self
                 
@@ -50,25 +52,26 @@ class PlaybackVM: NSObject, ObservableObject {
                     self.isPlaying = true
                 }
             } catch {
-                print("播放失败: \(error.localizedDescription)")
+                GlobalState.shared.showErrMsg("音乐播放失败: \(error.localizedDescription)")
             }
         }
     }
     
-    func getMusicData(platformId: String, songId: String, quality: String = "128", format: String = "mp3", completion: @escaping (Data?, String?) -> Void) {
+    func getMusicData(platformId: String, songId: String, quality: String = "128", format: String = "mp3", completion: @escaping (Data?) -> Void) {
         let cacheKey = "\(platformId)_\(songId)_\(quality).\(format)"
         let cacheFile = cacheDirectory.appendingPathComponent(cacheKey)
         
         if fileManager.fileExists(atPath: cacheFile.path) {
             do {
                 let cachedData = try Data(contentsOf: cacheFile)
-                completion(cachedData, nil)
+                completion(cachedData)
                 return
             } catch {
-                print("读取缓存文件失败：\(error)")
+                GlobalState.shared.showErrMsg("读取缓存文件失败：\(error)")
             }
         }
         
+        GlobalState.shared.showErrMsg("正在网络获取音乐")
         let urlString = "https://music.wjhe.top/api/music/\(platformId)/url"
         let parameters: [String: String] = [
             "ID": songId,
@@ -82,25 +85,24 @@ class PlaybackVM: NSObject, ObservableObject {
         
         AF.request(urlString, parameters: parameters, headers: headers)
             .response { response in
-                if response.response?.statusCode ?? 400 != 200 {
-                    completion(nil, "接口\(response.response?.statusCode ?? 400)")
+                if response.response!.statusCode != 200 {
+                    GlobalState.shared.showErrMsg("接口错误: \(response.response!.statusCode)")
+                    completion(nil)
                 } else {
                     switch response.result {
                     case .success(let value):
-                        print("获取 music data 成功")
                         if let data = value {
-                            // 将结果存入文件缓存
                             do {
                                 try data.write(to: cacheFile)
-                                print("音乐数据已缓存到文件: \(cacheFile.path)")
                             } catch {
-                                print("缓存音乐数据到文件失败：\(error)")
+                                GlobalState.shared.showErrMsg("缓存音乐数据到文件失败：\(error)")
                             }
                         }
-                        completion(value, nil)
+                        GlobalState.shared.showErrMsg("网络获取音乐成功")
+                        completion(value)
                     case .failure(let error):
-                        print("获取 music data 失败", error)
-                        completion(nil, error.localizedDescription)
+                        GlobalState.shared.showErrMsg("获取 music data 失败, err: " + error.localizedDescription)
+                        completion(nil)
                     }
                 }
             }

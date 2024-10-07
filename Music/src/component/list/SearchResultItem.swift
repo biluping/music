@@ -9,7 +9,7 @@ struct SearchResultItem: View {
     @State private var backgroundColor = Color.gray.opacity(0)
     @State private var isHovered = false
     @StateObject var favoritesVM = FavoritesVM()
-    @EnvironmentObject var playbackVM: PlaybackVM
+    @StateObject var playbackVM = PlaybackVM.shared
     
     var body: some View {
         HStack {

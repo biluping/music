@@ -3,9 +3,9 @@ import SwiftUI
 struct SearchView: View {
     @State private var searchText = ""
     @State private var searching = false
-    @EnvironmentObject private var state: GlobalState
     @StateObject private var musicVM = MusicVM()
-    @StateObject private var plantformVM = PlatformVM()
+    @StateObject private var plantformVM = PlatformVM.shared
+    @StateObject private var state = GlobalState.shared
 
     var body: some View {
         ZStack {
@@ -56,5 +56,4 @@ struct SearchView: View {
 
 #Preview {
     SearchView()
-        .environmentObject(GlobalState())
 }

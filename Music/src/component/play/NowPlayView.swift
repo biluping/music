@@ -1,8 +1,7 @@
 import SwiftUI
 
 struct NowPlayView: View {
-    @EnvironmentObject var state: GlobalState
-    @EnvironmentObject var playbackVM: PlaybackVM
+    @StateObject var playbackVM = PlaybackVM.shared
     
     private func formatTime(_ time: TimeInterval) -> String {
         let minutes = Int(time) / 60
