@@ -25,6 +25,7 @@ class UserVM {
                    parameters: parameters, 
                    encoder: URLEncodedFormParameterEncoder.default)
             .responseDecodable(of: ResVO<LoginData>.self) { response in
+                debugPrint(response)
                 switch response.result {
                 case .success(let res):
                     if let data = res.data {
