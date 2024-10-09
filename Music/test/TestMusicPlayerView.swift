@@ -30,7 +30,8 @@ struct TestView: View {
     @State private var isDragging = false
 
     private let lyric =
-        "[ver:v1.0]\n[ti:胭脂泪]\n[ar:刘依纯]\n[al:续摊]\n[by:]\n[00:00.000]胭脂泪 - 刘依纯\n[00:10.260]词：张涛\n[00:20.530]曲：舒世豪\n[00:30.803]胭脂泪 黯然留人醉\n[00:36.151]独上西楼人影消瘦 心憔悴\n[00:42.137]问良人 为何不倦归\n[00:47.679]终日苦盼 泪却空垂\n[00:53.123]梦里笑 醒来却是悲\n[00:56.769]无言以对\n[00:59.704]痴情却换得一身负累\n[01:05.865]问一江春水\n[01:08.327]却剪不断伤悲\n[01:11.296]流不尽爱恨离愁的是非\n[01:18.477]如这般滋味\n[01:19.787]在往事中挥泪\n[01:22.970]相思都早已成堆\n[01:59.358]胭脂泪 黯然留人醉\n[02:04.594]独上西楼人影消瘦 心憔悴\n[02:10.779]问良人 为何不倦归\n[02:16.008]终日苦盼 泪却空垂\n[02:21.953]梦里笑 醒来却是悲\n[02:24.684]无言以对\n[02:28.053]痴情却换得一身负累\n[02:34.002]问一江春水\n[02:36.818]却剪不断伤悲\n[02:39.735]流不尽爱恨离愁的是非\n[02:45.727]如这般滋味\n[02:49.213]在往事中挥泪\n[02:51.574]相思都早已成堆\n[02:58.853]问一江春水\n[03:01.486]却剪不断伤悲\n[03:04.535]流不尽爱恨离愁的是非\n[03:10.192]如这般滋味\n[03:13.136]在往事中挥泪\n[03:16.182]相思都早已成堆\n"
+        "[ver:v1.0]\n[ar:张杰]\n[ti:天下]\n[by:v_emilylu]\n[00:00.001]天下 - 张杰\n[00:01.327]词：周毅\n[00:01.429]曲：刘吉宁\n[00:01.560]编曲：张峰棣/吴牧禅\n[00:01.858]制作人：闻震/张杰\n[00:02.112]Guitar：程冠琨\n[00:02.242]二胡：董小闻\n[00:02.423]和音编写&和音：张杰\n[00:02.695]混音：周天澈@Studio21A\n[00:02.907]母带：Chris Gehringer@Steling Sound NY\n[00:03.117]监制&出品人：张杰\n[00:03.367]制作&发行：行星文化Planet Culture\n[00:27.185]烽烟起寻爱似浪淘沙\n[00:33.866]遇见她如春水映梨花\n[00:40.534]挥剑断天涯相思轻放下\n[00:47.307]梦中我痴痴牵挂\n[00:54.295]顾不顾将相王侯\n[00:55.797]管不管万世千秋\n[00:57.404]求只求爱化解\n[00:59.217]这万丈红尘纷乱永无休\n[01:01.668]爱更爱天长地久\n[01:03.197]要更要似水温柔\n[01:04.889]谁在乎谁主春秋\n[01:07.234]一生有爱何惧风飞沙\n[01:10.458]悲白发留不住芳华\n[01:14.185]抛去江山如画\n[01:15.750]换她笑面如花\n[01:17.420]抵过这一生空牵挂\n[01:20.605]心若无怨爱恨也随她\n[01:23.835]天地大情路永无涯\n[01:27.478]只为她袖手天下\n[02:00.713]顾不顾将相王侯\n[02:02.441]管不管万世千秋\n[02:04.121]求只求爱化解\n[02:05.940]这万丈红尘纷乱永无休\n[02:08.249]爱更爱天长地久\n[02:09.944]要更要似水温柔\n[02:11.592]谁在乎谁主春秋\n[02:14.003]一生有爱何惧风飞沙\n[02:17.102]悲白发留不住芳华\n[02:20.827]抛去江山如画\n[02:22.419]换她笑面如花\n[02:24.107]抵过这一生空牵挂\n[02:27.166]心若无怨爱恨也随她\n[02:30.364]天地大情路永无涯\n[02:33.981]只为她袖手天下\n[02:40.768]一生有爱何惧风飞沙\n[02:43.766]悲白发留不住芳华\n[02:47.466]抛去江山如画\n[02:49.119]换她笑面如花\n[02:50.775]抵过这一生空牵挂\n[02:53.827]心若无怨爱恨也随她\n[02:57.055]天地大情路永无涯\n[03:00.636]只为她袖手天下\n[03:07.303]烽烟起寻爱似浪淘沙\n[03:13.771]遇见她如春水映梨花\n[03:20.465]挥剑断天涯相思轻放下\n[03:27.279]梦中我痴痴牵挂\n"
+
     @State private var lyrics: [(timestamp: Double, content: String)] = []
     @State private var previousLyric = ""
     @State private var currentLyric = ""
@@ -89,12 +90,14 @@ struct TestView: View {
     }
 
     private func updateLyrics() {
-        if let nextIndex = lyrics.firstIndex(where: { $0.timestamp > audioManager.currentTime }) {
-            let currentIndex = max(0, nextIndex - 1)
+        if let nextIndex = lyrics.firstIndex(where: {
+            $0.timestamp > audioManager.currentTime
+        }) {
+            let currentIndex = nextIndex - 1
             let prevIndex = nextIndex - 2
-            
+
             previousLyric = prevIndex < 0 ? "" : lyrics[prevIndex].content
-            currentLyric = lyrics[currentIndex].content
+            currentLyric = currentIndex < 0 ? "" : lyrics[currentIndex].content
             nextLyric = lyrics[nextIndex].content
         }
     }
@@ -121,14 +124,10 @@ struct TestView: View {
     }
 
     private func parseTimeStr(timeStr: String) -> Double? {
-        let components = timeStr.components(separatedBy: ".")
-        if components.count != 2 {
-            return nil
-        }
-        let timeArray = components[0].components(separatedBy: ":")
-        guard timeArray.count == 2,
-              let minute = Double(timeArray[0]),
-            let second = Double(timeArray[1])
+        let components = timeStr.components(separatedBy: ":")
+        guard components.count == 2,
+            let minute = Double(components[0]),
+            let second = Double(components[1])
         else {
             return nil
         }
@@ -140,23 +139,26 @@ struct LyricDisplayView: View {
     let previousLyric: String
     let currentLyric: String
     let nextLyric: String
-    
+
     var body: some View {
         VStack(spacing: 8) {
             Text(previousLyric)
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
+                .lineLimit(1)
             Text(currentLyric)
                 .font(.system(size: 18))
                 .fontWeight(.bold)
+                .lineLimit(1)
             Text(nextLyric)
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
+                .lineLimit(1)
         }
     }
 }
 
 #Preview {
     TestView()
-        .frame(width: 300, height: 100)
+        .frame(width: 300, height: 300)
 }
