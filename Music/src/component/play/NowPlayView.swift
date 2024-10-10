@@ -2,12 +2,13 @@ import SwiftUI
 
 struct NowPlayView: View {
     @StateObject var playbackVM = PlaybackVM.shared
+    @State private var isDragging = false
 
     var body: some View {
 
         HStack {
-            if let cover = playbackVM.currentSongCover {
-                cover
+            if let coverData = playbackVM.currentSongCoverData {
+                Image(nsImage: NSImage(data: coverData)!)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 50, height: 50)
@@ -49,20 +50,17 @@ struct NowPlayView: View {
 
                 HStack {
 
-                    Text(formatTime(playbackVM.currentPlaybackTime))
+                    Text(formatTime(playbackVM.currentTime))
                         .font(.caption)
 
                     Slider(
-                        value: Binding(
-                            get: { playbackVM.currentPlaybackTime },
-                            set: { newValue in
-                                playbackVM.seekTo(time: newValue)
-                            }),
-                        in:
-                            0...TimeInterval(
-                                playbackVM.currentSong?.duration ?? 0)
+                        value: $playbackVM.currentTime,
+                        in: 0...(playbackVM.audioPlayer?.duration ?? 0),
+                        onEditingChanged: { isDragging in
+                            self.isDragging = isDragging
+                            playbackVM.audioPlayer?.currentTime = playbackVM.currentTime
+                        }
                     )
-                    .accentColor(.blue)
 
                     Text(
                         formatTime(
@@ -81,9 +79,15 @@ struct NowPlayView: View {
                 .padding(.top, 4)
                 .padding(.leading, 10)
                 .frame(width: 300)
+        }.onReceive(Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()) { _ in
+            if !isDragging {
+                playbackVM.updateCurrentMusicState()
+            }
+            
         }
 
     }
+    
 
     private func formatTime(_ time: TimeInterval) -> String {
         let minutes = Int(time) / 60

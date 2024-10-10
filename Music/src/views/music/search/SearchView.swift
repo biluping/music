@@ -11,12 +11,12 @@ struct SearchView: View {
         ZStack {
             VStack(spacing: 10) {
                 HStack {
-                    Picker("平台", selection: $state.selectedPlatformId) {
-                        ForEach(plantformVM.loadPlatforms(), id: \.ID) { platform in
-                            Text(platform.name).tag(platform.ID)
-                        }
-                    }
-                    .frame(width: 150)
+//                    Picker("平台", selection: $state.selectedPlatformId) {
+//                        ForEach(plantformVM.loadPlatforms(), id: \.ID) { platform in
+//                            Text(platform.name).tag(platform.ID)
+//                        }
+//                    }
+//                    .frame(width: 150)
                     
                     TextField("搜索音乐", text: $searchText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
