@@ -3,7 +3,7 @@ import Alamofire
 import Foundation
 import SwiftUI
 
-class PlaybackVM: NSObject, ObservableObject {
+class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     static let shared = PlaybackVM()
 
@@ -27,6 +27,13 @@ class PlaybackVM: NSObject, ObservableObject {
         try? fileManager.createDirectory(
             at: cacheDirectory, withIntermediateDirectories: true,
             attributes: nil)
+    }
+    
+    // 实现 AVAudioPlayerDelegate 协议，音乐播放结束后，自动播放下一首
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if flag {
+            playNext()
+        }
     }
 
     // 更新当前 music 状态，例如：歌词、
@@ -52,6 +59,7 @@ class PlaybackVM: NSObject, ObservableObject {
             
             DispatchQueue.main.async {
                 self.audioPlayer = try? AVAudioPlayer(data: data)
+                self.audioPlayer?.delegate = self
                 self.audioPlayer?.play()
                 self.isPlaying = true
             }
@@ -255,31 +263,11 @@ class PlaybackVM: NSObject, ObservableObject {
 
     func playNext() {
         playlistIndex = (playlistIndex + 1) % playlist.count
-        if let nextSong = playlist[safe: playlistIndex] {
-            playSong(nextSong, playlist: playlist)
-        }
+        playSong(playlist[playlistIndex], playlist: playlist)
     }
 
     func playPrevious() {
         playlistIndex = (playlistIndex - 1 + playlist.count) % playlist.count
-        if let previousSong = playlist[safe: playlistIndex] {
-            playSong(previousSong, playlist: playlist)
-        }
-    }
-}
-
-extension PlaybackVM: AVAudioPlayerDelegate {
-    func audioPlayerDidFinishPlaying(
-        _ player: AVAudioPlayer, successfully flag: Bool
-    ) {
-        if flag {
-            playNext()
-        }
-    }
-}
-
-extension Array {
-    subscript(safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
+        playSong(playlist[playlistIndex], playlist: playlist)
     }
 }
