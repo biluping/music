@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NowPlayView: View {
     @StateObject var playbackVM = PlaybackVM.shared
+    @StateObject var favoritesVM = FavoritesVM.shared
     @State private var isDragging = false
 
     var body: some View {
@@ -46,6 +47,15 @@ struct NowPlayView: View {
                     }) {
                         Image(systemName: "forward.fill")
                     }.buttonStyle(PlainButtonStyle())
+                    
+                    Button(action: {
+                        favoritesVM.toggleFavorite(playbackVM.currentSong!)
+                    }) {
+                        Image(systemName: favoritesVM.isFavorite(playbackVM.currentSong!) ? "heart.fill" : "heart")
+                            .foregroundColor(favoritesVM.isFavorite(playbackVM.currentSong!) ? .red : .gray)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.leading, 10)
                 }
 
                 HStack {

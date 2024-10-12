@@ -32,7 +32,7 @@ struct MainView: View {
             if playbackVM.currentSong != nil {
                 ToolbarItem(placement: .principal) {
                     NowPlayView()
-                        .frame(width: 600)
+                        .frame(width: 700)
                 }
             }
         }

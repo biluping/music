@@ -28,7 +28,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
             at: cacheDirectory, withIntermediateDirectories: true,
             attributes: nil)
     }
-    
+
     // 实现 AVAudioPlayerDelegate 协议，音乐播放结束后，自动播放下一首
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
@@ -38,6 +38,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     // 更新当前 music 状态，例如：歌词、
     func updateCurrentMusicState() {
+
         currentTime = audioPlayer?.currentTime ?? 0
         currentLyric =
             lyrics.last(where: { $0.timeStamp <= currentTime })?.content ?? ""
@@ -47,16 +48,16 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
         isPlaying = false
         audioPlayer?.currentTime = 0
         audioPlayer?.stop()
-        
+
         currentSong = song
         self.playlist = playlist
         self.currentLyric = ""
         playlistIndex = playlist.firstIndex(where: { $0.ID == song.ID }) ?? 0
-        
+
         // 获取音乐
         getMusicData(platformId: song.platform, songId: song.ID) {data in
             guard let data = data else { return }
-            
+
             DispatchQueue.main.async {
                 self.audioPlayer = try? AVAudioPlayer(data: data)
                 self.audioPlayer?.delegate = self
@@ -64,7 +65,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
                 self.isPlaying = true
             }
         }
-        
+
         // 获取封面
         getSongCoverImage(platformId: song.platform, songId: song.ID) { data in
             if let data = data {
@@ -73,7 +74,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
                 }
             }
         }
-        
+
         // 获取歌词
         getLyricData(platformId: song.platform, songId: song.ID) {data in
             if let data = data {
