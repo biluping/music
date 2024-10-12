@@ -13,10 +13,10 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     @Published var playlist: [Song] = []
     @Published var playlistIndex: Int = 0
     @Published var currentSongCoverData: Data?
-    @Published var currentLyric: String = ""
+    @Published var currentLyricIndex = 0
     @Published var audioPlayer: AVAudioPlayer?
-
-    private var lyrics: [(timeStamp: TimeInterval, content: String)] = []
+    @Published var lyrics: [(timeStamp: TimeInterval, content: String)] = []
+    
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
 
@@ -38,10 +38,8 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     // 更新当前 music 状态，例如：歌词、
     func updateCurrentMusicState() {
-
         currentTime = audioPlayer?.currentTime ?? 0
-        currentLyric =
-            lyrics.last(where: { $0.timeStamp <= currentTime })?.content ?? ""
+        currentLyricIndex = lyrics.lastIndex(where: { $0.timeStamp <= currentTime }) ?? 0
     }
 
     func playSong(_ song: Song, playlist: [Song]) {
@@ -51,7 +49,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
         currentSong = song
         self.playlist = playlist
-        self.currentLyric = ""
+        self.currentLyricIndex = 0
         playlistIndex = playlist.firstIndex(where: { $0.ID == song.ID }) ?? 0
 
         // 获取音乐

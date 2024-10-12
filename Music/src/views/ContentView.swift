@@ -11,7 +11,6 @@ struct ContentView: View {
                 LoginView()
             }
         }
-        .frame(minWidth: 1056, minHeight: 700)
         .overlay(
             Group {
                 if let message = state.message {

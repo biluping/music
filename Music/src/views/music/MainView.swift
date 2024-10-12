@@ -1,28 +1,32 @@
 import SwiftUI
 
 struct MainView: View {
-    @State private var selectedMenu = "search"
     @StateObject private var state = GlobalState.shared
     @StateObject private var playbackVM = PlaybackVM.shared
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $selectedMenu) {
+            List(selection: $state.selectedMenu) {
                 NavigationLink(value: "search") {
                     Label("音乐搜索", systemImage: "magnifyingglass")
                 }
                 NavigationLink(value: "favorites") {
                     Label("我的收藏", systemImage: "heart.fill")
                 }
+                NavigationLink(value: "lyric") {
+                    Label("我的歌词", systemImage: "heart.fill")
+                }
             }
             .navigationTitle("音乐世界")
         } detail: {
             Group {
-                switch selectedMenu {
+                switch state.selectedMenu {
                 case "search":
                     SearchView()
                 case "favorites":
                     FavoritesView()
+                case "lyric":
+                    LyricView()
                 default:
                     Text("请选择一个菜单项")
                 }
@@ -30,9 +34,9 @@ struct MainView: View {
         }
         .toolbar {
             if playbackVM.currentSong != nil {
-                ToolbarItem(placement: .principal) {
+                ToolbarItem(placement: .status) {
                     NowPlayView()
-                        .frame(width: 700)
+                        .frame(width: 550)
                 }
             }
         }
@@ -41,5 +45,5 @@ struct MainView: View {
 
 #Preview {
     MainView()
-        .frame(minWidth: 1056, minHeight: 700)
+        .frame(minWidth: 900, minHeight: 600)
 }

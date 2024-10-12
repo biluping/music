@@ -37,6 +37,7 @@ struct SearchView: View {
                 ProgressView()
             }
         }
+        .navigationTitle("音乐搜索")
     }
     
     private func search() {

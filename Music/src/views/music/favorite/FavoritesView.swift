@@ -13,6 +13,7 @@ struct FavoritesView: View {
                 SearchResultList(playlist: favoritesVM.favoriteSongs)
             }
         }
+        .navigationTitle("我的收藏")
     }
 }
 

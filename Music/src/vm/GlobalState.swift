@@ -6,6 +6,7 @@ class GlobalState: ObservableObject {
     private init() {}
     
     @Published var selectedPlatformId: String = "kuwo"
+    @Published var selectedMenu = "search"
     @Published var isLogin = false
     @Published var message: String?
 

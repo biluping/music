@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct NowPlayView: View {
+    @StateObject var state = GlobalState.shared
     @StateObject var playbackVM = PlaybackVM.shared
     @StateObject var favoritesVM = FavoritesVM.shared
     @State private var isDragging = false
@@ -8,16 +9,21 @@ struct NowPlayView: View {
     var body: some View {
 
         HStack {
-            if let coverData = playbackVM.currentSongCoverData {
-                Image(nsImage: NSImage(data: coverData)!)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 50)
-            } else {
-                Image("songImg")
-                    .resizable()
-                    .frame(width: 50, height: 50)
-            }
+            Button(action: {
+                state.selectedMenu = "lyric"
+            }) {
+                if let coverData = playbackVM.currentSongCoverData {
+                    Image(nsImage: NSImage(data: coverData)!)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 50, height: 50)
+                } else {
+                    Image("songImg")
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                }
+            }.buttonStyle(PlainButtonStyle())
+            
 
             VStack {
                 HStack {
@@ -77,23 +83,21 @@ struct NowPlayView: View {
                             TimeInterval(playbackVM.currentSong?.duration ?? 0))
                     )
                     .font(.caption)
-
                 }
             }
 
             // 添加歌词显示
-            Text(playbackVM.currentLyric)
+            Text(playbackVM.lyrics[playbackVM.currentLyricIndex].content)
                 .font(.title3)
                 .foregroundColor(.secondary)
                 .lineLimit(1)
                 .padding(.top, 4)
                 .padding(.leading, 10)
-                .frame(width: 300)
+                .frame(width: 250)
         }.onReceive(Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()) { _ in
             if !isDragging {
                 playbackVM.updateCurrentMusicState()
             }
-            
         }
 
     }
