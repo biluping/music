@@ -16,6 +16,9 @@ struct MainView: View {
                 NavigationLink(value: "lyric") {
                     Label("我的歌词", systemImage: "music.note.list")
                 }
+                NavigationLink(value: "mv") {
+                    Label("我的MV", systemImage: "music.note.list")
+                }
             }
             .navigationTitle("音乐世界")
         } detail: {
@@ -27,6 +30,8 @@ struct MainView: View {
                     FavoritesView()
                 case "lyric":
                     LyricView()
+                case "mv":
+                    MvView()
                 default:
                     Text("请选择一个菜单项")
                 }

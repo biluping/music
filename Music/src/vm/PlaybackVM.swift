@@ -16,7 +16,9 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     @Published var currentLyricIndex = 0
     @Published var audioPlayer: AVAudioPlayer?
     @Published var lyrics: [(timeStamp: TimeInterval, content: String)] = []
-    
+    @Published var videoPlayer: AVPlayer?
+    @Published var currentMvLinks: [MvLink] = []
+
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
 
@@ -31,7 +33,9 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
 
     // 实现 AVAudioPlayerDelegate 协议，音乐播放结束后，自动播放下一首
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+    func audioPlayerDidFinishPlaying(
+        _ player: AVAudioPlayer, successfully flag: Bool
+    ) {
         if flag {
             playNext()
         }
@@ -40,7 +44,8 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     // 更新当前 music 状态，例如：歌词、
     func updateCurrentMusicState() {
         currentTime = audioPlayer?.currentTime ?? 0
-        currentLyricIndex = lyrics.lastIndex(where: { $0.timeStamp <= currentTime }) ?? 0
+        currentLyricIndex =
+            lyrics.lastIndex(where: { $0.timeStamp <= currentTime }) ?? 0
     }
 
     func playSong(_ song: Song, playlist: [Song], quality: Int = 128) {
@@ -53,13 +58,20 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
         self.currentLyricIndex = 0
         playlistIndex = playlist.firstIndex(where: { $0.ID == song.ID }) ?? 0
 
-        guard let format = currentSong?.fileLinks?.first(where: {$0.quality == quality})?.format else {
+        guard
+            let format = currentSong?.fileLinks?.first(where: {
+                $0.quality == quality
+            })?.format
+        else {
             GlobalState.shared.showErrMsg("获取音质 format 失败")
             return
         }
-        
+
         // 获取音乐
-        getMusicData(platformId: song.platform, songId: song.ID, quality: quality, format: format) {data in
+        getMusicData(
+            platformId: song.platform, songId: song.ID, quality: quality,
+            format: format
+        ) { data in
             guard let data = data else { return }
 
             DispatchQueue.main.async {
@@ -80,10 +92,18 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
         }
 
         // 获取歌词
-        getLyricData(platformId: song.platform, songId: song.ID) {data in
+        getLyricData(platformId: song.platform, songId: song.ID) { data in
             if let data = data {
                 self.parseLyrics(String(data: data, encoding: .utf8)!)
             }
+        }
+    }
+    
+    func playMv(mvLink: MvLink) {
+        if let url = URL(string: "https://music.wjhe.top/\(mvLink.URL)") {
+            GlobalState.shared.selectedMenu = "mv"
+            self.videoPlayer = AVPlayer(url: url)
+            self.videoPlayer?.play()
         }
     }
 
@@ -257,6 +277,44 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
             }
     }
 
+    func getMvData(
+        platformId: String, songId: String,
+        completion: @escaping ([MvLink]) -> Void
+    ) {
+
+        let urlString = "https://music.wjhe.top/api/music/\(platformId)/mv"
+        let parameters: [String: String] = [
+            "ID": songId
+        ]
+
+        let headers: HTTPHeaders = [
+            "Cookie": "access_token=\(UserVM.shared.token!)"
+        ]
+
+        GlobalState.shared.showErrMsg("正在获取 mv 列表")
+        
+        AF.request(urlString, parameters: parameters, headers: headers)
+            .validate()
+            .responseDecodable(of: ResVO<MvData>.self) { response in
+                switch response.result {
+                case .success(let res):
+                    if let mvLinks = res.data?.links {
+                        if !mvLinks.isEmpty {
+                            DispatchQueue.main.async {
+                                self.currentMvLinks = mvLinks
+                            }
+                        }
+                        completion(mvLinks)
+                    } else {
+                        completion([])
+                    }
+                case .failure(let error):
+                    GlobalState.shared.showErrMsg("获取MV数据失败: \(error)")
+                    completion([])
+                }
+            }
+    }
+
     func togglePlayPause() {
         isPlaying.toggle()
         if isPlaying {
@@ -264,6 +322,11 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
         } else {
             audioPlayer?.pause()
         }
+    }
+    
+    func togglePause() {
+        isPlaying = false
+        audioPlayer?.pause()
     }
 
     func playNext() {
