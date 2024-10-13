@@ -14,7 +14,7 @@ struct MainView: View {
                     Label("我的收藏", systemImage: "heart.fill")
                 }
                 NavigationLink(value: "lyric") {
-                    Label("我的歌词", systemImage: "heart.fill")
+                    Label("我的歌词", systemImage: "music.note.list")
                 }
             }
             .navigationTitle("音乐世界")
@@ -36,7 +36,7 @@ struct MainView: View {
             if playbackVM.currentSong != nil {
                 ToolbarItem(placement: .status) {
                     NowPlayView()
-                        .frame(width: 550)
+                        .frame(width: 600)
                 }
             }
         }
@@ -45,5 +45,5 @@ struct MainView: View {
 
 #Preview {
     MainView()
-        .frame(minWidth: 900, minHeight: 600)
+        .frame(minWidth: 1000, minHeight: 600)
 }

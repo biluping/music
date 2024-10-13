@@ -38,4 +38,5 @@ struct PopupView: View {
 
 #Preview {
     ContentView()
+        .frame(width: 1000, height: 600)
 }

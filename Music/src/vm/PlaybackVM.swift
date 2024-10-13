@@ -22,6 +22,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     private override init() {
         let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        print(urls)
         cacheDirectory = urls[0].appendingPathComponent("MusicCache")
         super.init()
         try? fileManager.createDirectory(
@@ -42,7 +43,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
         currentLyricIndex = lyrics.lastIndex(where: { $0.timeStamp <= currentTime }) ?? 0
     }
 
-    func playSong(_ song: Song, playlist: [Song]) {
+    func playSong(_ song: Song, playlist: [Song], quality: Int = 128) {
         isPlaying = false
         audioPlayer?.currentTime = 0
         audioPlayer?.stop()
@@ -52,8 +53,13 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
         self.currentLyricIndex = 0
         playlistIndex = playlist.firstIndex(where: { $0.ID == song.ID }) ?? 0
 
+        guard let format = currentSong?.fileLinks?.first(where: {$0.quality == quality})?.format else {
+            GlobalState.shared.showErrMsg("获取音质 format 失败")
+            return
+        }
+        
         // 获取音乐
-        getMusicData(platformId: song.platform, songId: song.ID) {data in
+        getMusicData(platformId: song.platform, songId: song.ID, quality: quality, format: format) {data in
             guard let data = data else { return }
 
             DispatchQueue.main.async {
@@ -116,7 +122,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
 
     func getMusicData(
-        platformId: String, songId: String, quality: String = "128",
+        platformId: String, songId: String, quality: Int = 128,
         format: String = "mp3", completion: @escaping (Data?) -> Void
     ) {
         let cacheKey = "\(platformId)_\(songId)_\(quality).\(format)"
@@ -131,7 +137,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
         let urlString = "https://music.wjhe.top/api/music/\(platformId)/url"
         let parameters: [String: String] = [
             "ID": songId,
-            "quality": quality,
+            "quality": "\(quality)",
             "format": format,
         ]
 

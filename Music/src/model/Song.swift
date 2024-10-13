@@ -41,7 +41,7 @@ struct Singer: Codable {
 /// 文件链接信息结构
 struct FileLink: Codable {
     /// 文件名
-    let name: String?
+    let name: String
     /// 音质（kbps）
     let quality: Int
     /// 文件格式

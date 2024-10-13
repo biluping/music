@@ -15,6 +15,10 @@ struct LyricView: View {
                     Text("").id(-3)
                     Text("").id(-2)
                     Text("").id(-1)
+                    if playbackVm.lyrics.count == 0 {
+                        Text("当前没有播放中的歌曲")
+                            .foregroundColor(.gray)
+                    }
                     ForEach(Array(playbackVm.lyrics.enumerated()), id: \.offset){ index, obj in
                         Text(obj.content)
                             .font(.system(size: playbackVm.currentLyricIndex == index ? 25 : 15))

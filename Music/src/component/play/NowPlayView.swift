@@ -5,6 +5,7 @@ struct NowPlayView: View {
     @StateObject var playbackVM = PlaybackVM.shared
     @StateObject var favoritesVM = FavoritesVM.shared
     @State private var isDragging = false
+    @State private var selectdQuality = 128
 
     var body: some View {
 
@@ -23,9 +24,8 @@ struct NowPlayView: View {
                         .frame(width: 50, height: 50)
                 }
             }.buttonStyle(PlainButtonStyle())
-            
 
-            VStack {
+            VStack(spacing: 0) {
                 HStack {
                     let songName = playbackVM.currentSong?.name ?? ""
                     let singerName =
@@ -54,14 +54,41 @@ struct NowPlayView: View {
                         Image(systemName: "forward.fill")
                     }.buttonStyle(PlainButtonStyle())
                     
-                    Button(action: {
-                        favoritesVM.toggleFavorite(playbackVM.currentSong!)
-                    }) {
-                        Image(systemName: favoritesVM.isFavorite(playbackVM.currentSong!) ? "heart.fill" : "heart")
-                            .foregroundColor(favoritesVM.isFavorite(playbackVM.currentSong!) ? .red : .gray)
+                    Spacer()
+
+                    Picker("", selection: $selectdQuality) {
+                        ForEach(playbackVM.currentSong?.fileLinks ?? [], id: \.name) { fileLink in
+                            if fileLink.format != "ogg" {
+                                Text(fileLink.name).tag(fileLink.quality)
+                            }
+                        }
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding(.leading, 10)
+                    .frame(width: 90)
+                    .onChange(of: selectdQuality) {
+                        if let song = playbackVM.currentSong {
+                            playbackVM.playSong(song, playlist: playbackVM.playlist, quality: selectdQuality)
+                        }
+                    }
+                    
+                    Spacer()
+
+                    if let song = playbackVM.currentSong {
+                        Button(action: {
+                            favoritesVM.toggleFavorite(song)
+                        }) {
+                            Image(
+                                systemName: favoritesVM.isFavorite(
+                                    song)
+                                    ? "heart.fill" : "heart"
+                            )
+                            .foregroundColor(
+                                favoritesVM.isFavorite(song)
+                                    ? .red : .gray)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.leading, 10)
+                    }
+                    
                 }
 
                 HStack {
@@ -74,7 +101,8 @@ struct NowPlayView: View {
                         in: 0...(playbackVM.audioPlayer?.duration ?? 0),
                         onEditingChanged: { isDragging in
                             self.isDragging = isDragging
-                            playbackVM.audioPlayer?.currentTime = playbackVM.currentTime
+                            playbackVM.audioPlayer?.currentTime =
+                                playbackVM.currentTime
                         }
                     )
 
@@ -87,21 +115,25 @@ struct NowPlayView: View {
             }
 
             // 添加歌词显示
-            Text(playbackVM.lyrics[playbackVM.currentLyricIndex].content)
-                .font(.title3)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .padding(.top, 4)
-                .padding(.leading, 10)
-                .frame(width: 250)
-        }.onReceive(Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()) { _ in
+            if playbackVM.lyrics.count > 0 {
+                Text(playbackVM.lyrics[playbackVM.currentLyricIndex].content)
+                    .font(.title3)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .padding(.top, 4)
+                    .padding(.leading, 10)
+                    .frame(width: 200)
+            }
+            
+        }.onReceive(
+            Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+        ) { _ in
             if !isDragging {
                 playbackVM.updateCurrentMusicState()
             }
         }
 
     }
-    
 
     private func formatTime(_ time: TimeInterval) -> String {
         let minutes = Int(time) / 60
