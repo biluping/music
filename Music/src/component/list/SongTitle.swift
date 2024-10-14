@@ -21,14 +21,7 @@ struct SongTitle: View {
                         .cornerRadius(3)
                 }
                 
-                if song.mvID != nil {
-                    Text("MV")
-                        .font(.system(size: 7))
-                        .foregroundStyle(.red)
-                        .padding(2)
-                        .border(Color(.red))
-                        .cornerRadius(3)
-                }
+                MvIcon(song: song)
                 
                 
                 Text(song.singers?.map { $0.name }.joined(separator: " / ") ?? "未知歌手")

@@ -14,18 +14,9 @@ struct MvIcon: View {
             .border(Color.red)
             .cornerRadius(3)
             .onTapGesture(perform: fetchMvData)
-            .sheet(isPresented: $sheetShow) {
-                MvQualitySelectionView(sheetShow: $sheetShow)
-            }
     }
     
     private func fetchMvData() {
-        playbackVM.getMvData(platformId: song.platform, songId: song.ID) { mvLinks in
-            if !mvLinks.isEmpty {
-                DispatchQueue.main.async {
-                    sheetShow.toggle()
-                }
-            }
-        }
+        playbackVM.getMvData(platformId: song.platform, songId: song.ID)
     }
 }

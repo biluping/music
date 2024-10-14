@@ -21,9 +21,6 @@ struct MvQualitySelectionView: View {
     }
     
     private func playMv(mvLink: MvLink) {
-        playbackVM.togglePause()
-        globalState.selectedMenu = "mv"
-        playbackVM.playMv(mvLink: mvLink)
-        sheetShow.toggle()
+        
     }
 }

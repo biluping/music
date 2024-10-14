@@ -30,7 +30,7 @@ struct NowPlayView: View {
     
     // 封面图片按钮视图
     private var coverImageButton: some View {
-        Button(action: { state.selectedMenu = "lyric" }) {
+        ZStack {
             if let coverData = playbackVM.currentSongCoverData {
                 Image(nsImage: NSImage(data: coverData)!)
                     .resizable()
@@ -40,9 +40,14 @@ struct NowPlayView: View {
                 Image("songImg")
                     .resizable()
                     .frame(width: 50, height: 50)
+                    
             }
+            
+            Image(systemName: playbackVM.isPlaying ? "pause" : "play")
+        }.onTapGesture(count: 2) {
+            playbackVM.togglePlayPause()
         }
-        .buttonStyle(PlainButtonStyle())
+        
     }
     
     // 歌曲信息和控制按钮行视图
@@ -70,16 +75,14 @@ struct NowPlayView: View {
         HStack {
             Button(action: { playbackVM.playPrevious() }) {
                 Image(systemName: "backward.fill")
+                    .font(.system(size: 18))
             }
             .buttonStyle(PlainButtonStyle())
             
-            Button(action: { playbackVM.togglePlayPause() }) {
-                Image(systemName: playbackVM.isPlaying ? "pause.fill" : "play.fill")
-            }
-            .buttonStyle(PlainButtonStyle())
             
             Button(action: { playbackVM.playNext() }) {
                 Image(systemName: "forward.fill")
+                    .font(.system(size: 18))
             }
             .buttonStyle(PlainButtonStyle())
         }

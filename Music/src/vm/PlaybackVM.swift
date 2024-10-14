@@ -18,6 +18,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     @Published var lyrics: [(timeStamp: TimeInterval, content: String)] = []
     @Published var videoPlayer: AVPlayer?
     @Published var currentMvLinks: [MvLink] = []
+    @Published var selectedMvQuality = 1080
 
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
@@ -96,14 +97,6 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
             if let data = data {
                 self.parseLyrics(String(data: data, encoding: .utf8)!)
             }
-        }
-    }
-    
-    func playMv(mvLink: MvLink) {
-        if let url = URL(string: "https://music.wjhe.top/\(mvLink.URL)") {
-            GlobalState.shared.selectedMenu = "mv"
-            self.videoPlayer = AVPlayer(url: url)
-            self.videoPlayer?.play()
         }
     }
 
@@ -278,8 +271,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
 
     func getMvData(
-        platformId: String, songId: String,
-        completion: @escaping ([MvLink]) -> Void
+        platformId: String, songId: String
     ) {
 
         let urlString = "https://music.wjhe.top/api/music/\(platformId)/mv"
@@ -302,17 +294,33 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
                         if !mvLinks.isEmpty {
                             DispatchQueue.main.async {
                                 self.currentMvLinks = mvLinks
+                                self.selectedMvQuality = mvLinks.last?.quality ?? 1080
+                                self.togglePause()
+                                GlobalState.shared.selectedMenu = "mv"
+                                self.playMv(mvLink: mvLinks.last!)
                             }
                         }
-                        completion(mvLinks)
-                    } else {
-                        completion([])
                     }
                 case .failure(let error):
                     GlobalState.shared.showErrMsg("获取MV数据失败: \(error)")
-                    completion([])
                 }
             }
+    }
+    
+    func playMv(mvLink: MvLink) {
+        if let url = URL(string: "https://music.wjhe.top/\(mvLink.URL)") {
+            if GlobalState.shared.selectedMenu != "mv" {
+                GlobalState.shared.selectedMenu = "mv"
+            }
+            
+            // 停止并销毁之前的播放器
+            self.videoPlayer?.pause()
+            self.videoPlayer = nil
+            
+            // 创建并播放新的视频
+            self.videoPlayer = AVPlayer(url: url)
+            self.videoPlayer?.play()
+        }
     }
 
     func togglePlayPause() {
