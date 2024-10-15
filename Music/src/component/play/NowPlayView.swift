@@ -6,7 +6,6 @@ struct NowPlayView: View {
     @StateObject private var playbackVM = PlaybackVM.shared
     @StateObject private var favoritesVM = FavoritesVM.shared
     @State private var isDragging = false
-    @State private var selectedQuality = 128
 
     // 主体视图
     var body: some View {
@@ -90,7 +89,7 @@ struct NowPlayView: View {
     
     // 音质选择器视图
     private var qualityPickerView: some View {
-        Picker("", selection: $selectedQuality) {
+        Picker("", selection: $playbackVM.selectedMusicQuality) {
             ForEach(playbackVM.currentSong?.fileLinks ?? [], id: \.name) { fileLink in
                 if fileLink.format != "ogg" {
                     Text(fileLink.name).tag(fileLink.quality)
@@ -98,9 +97,9 @@ struct NowPlayView: View {
             }
         }
         .frame(width: 90)
-        .onChange(of: selectedQuality) {
+        .onChange(of: playbackVM.selectedMusicQuality) {
             if let song = playbackVM.currentSong {
-                playbackVM.playSong(song, playlist: playbackVM.playlist, quality: selectedQuality)
+                playbackVM.playSong(song, playlist: playbackVM.playlist, quality: playbackVM.selectedMusicQuality)
             }
         }
     }

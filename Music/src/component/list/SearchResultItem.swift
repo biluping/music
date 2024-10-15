@@ -69,7 +69,7 @@ struct SearchResultItem: View {
         if playbackVM.currentSong?.ID == song.ID {
             playbackVM.togglePlayPause()
         } else {
-            playbackVM.playSong(song, playlist: playlist)
+            playbackVM.playSong(song, playlist: playlist, quality: song.fileLinks?.last?.quality ?? 128)
         }
     }
 }

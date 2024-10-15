@@ -2,6 +2,7 @@ import AVFoundation
 import Alamofire
 import Foundation
 import SwiftUI
+import OSLog
 
 class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
@@ -19,13 +20,13 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     @Published var videoPlayer: AVPlayer?
     @Published var currentMvLinks: [MvLink] = []
     @Published var selectedMvQuality = 1080
+    @Published var selectedMusicQuality = 128
 
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
 
     private override init() {
         let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        print(urls)
         cacheDirectory = urls[0].appendingPathComponent("MusicCache")
         super.init()
         try? fileManager.createDirectory(
@@ -49,7 +50,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
             lyrics.lastIndex(where: { $0.timeStamp <= currentTime }) ?? 0
     }
 
-    func playSong(_ song: Song, playlist: [Song], quality: Int = 128) {
+    func playSong(_ song: Song, playlist: [Song], quality: Int?) {
         isPlaying = false
         audioPlayer?.currentTime = 0
         audioPlayer?.stop()
@@ -69,8 +70,9 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
         }
 
         // 获取音乐
+        self.selectedMusicQuality = quality ?? (song.fileLinks?.last?.quality ?? 128)
         getMusicData(
-            platformId: song.platform, songId: song.ID, quality: quality,
+            platformId: song.platform, songId: song.ID, quality: self.selectedMusicQuality,
             format: format
         ) { data in
             guard let data = data else { return }
@@ -135,7 +137,7 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
 
     func getMusicData(
-        platformId: String, songId: String, quality: Int = 128,
+        platformId: String, songId: String, quality: Int,
         format: String = "mp3", completion: @escaping (Data?) -> Void
     ) {
         let cacheKey = "\(platformId)_\(songId)_\(quality).\(format)"
@@ -339,11 +341,11 @@ class PlaybackVM: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     func playNext() {
         playlistIndex = (playlistIndex + 1) % playlist.count
-        playSong(playlist[playlistIndex], playlist: playlist)
+        playSong(playlist[playlistIndex], playlist: playlist, quality: playlist[playlistIndex].fileLinks?.last?.quality ?? 128)
     }
 
     func playPrevious() {
         playlistIndex = (playlistIndex - 1 + playlist.count) % playlist.count
-        playSong(playlist[playlistIndex], playlist: playlist)
+        playSong(playlist[playlistIndex], playlist: playlist, quality: playlist[playlistIndex].fileLinks?.last?.quality ?? 128)
     }
 }
