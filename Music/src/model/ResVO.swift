@@ -5,4 +5,5 @@ struct ResVO<T: Codable>: Codable {
 
 struct Common: Codable {
     let msg: String
+    let code: Int?
 }

@@ -5,12 +5,11 @@ struct ContentView: View {
     
     var body: some View {
         Group {
-//            if state.isLogin {
-//                MainView()
-//            } else {
-//                LoginView()
-//            }
-            MainView()
+            if state.isLogin {
+                MainView()
+            } else {
+                LoginView()
+            }
         }
         .overlay(
             Group {

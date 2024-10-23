@@ -31,6 +31,11 @@ class MusicVM: ObservableObject {
                     } else {
                         debugPrint(response)
                         GlobalState.shared.showErrMsg("搜索音乐发生异")
+                        if let code = res.common.code {
+                            if code == 41 {
+                                GlobalState.shared.isLogin = false
+                            }
+                        }
                     }
                 case .failure(let err):
                     debugPrint(response)

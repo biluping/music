@@ -11,17 +11,23 @@ struct SearchView: View {
         ZStack {
             VStack(spacing: 10) {
                 HStack {
-                    
+
+                    Picker("平台", selection: $state.selectedPlatformId) {
+                        ForEach(plantformVM.loadPlatforms(), id: \.ID) { platform in
+                            Text(platform.ID)
+                        }
+                    }.frame(width: 150)
+
                     TextField("搜索音乐", text: $searchText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .onSubmit(search)
-                    
+
                     Button(action: search) {
                         Text("搜索")
                     }
                 }
                 .padding(10)
-                
+
                 if !musicVM.musicList.isEmpty {
                     SearchResultList(playlist: musicVM.musicList)
                 } else {
@@ -29,17 +35,17 @@ struct SearchView: View {
                         .foregroundColor(.gray)
                         .padding()
                 }
-                
+
                 Spacer()
             }
-            
+
             if searching {
                 ProgressView()
             }
         }
         .navigationTitle("音乐搜索")
     }
-    
+
     private func search() {
         searching = true
         musicVM.getMusicList(platformId: state.selectedPlatformId, name: searchText) {
